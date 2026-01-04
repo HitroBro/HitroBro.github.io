@@ -3,55 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hitarth Ghia | Cyber Security Portfolio</title>
+    <title>root@hitrobro: ~</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://pyscript.net/releases/2023.11.1/core.css" />
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Hitarth Ghia <span class="blink">_</span></h1>
-            <p class="subtitle">Cyber Security (CoE) | Python Developer</p>
-        </header>
-
-        <section id="projects">
-            <h2>🛡️ Project Arsenal</h2>
-            <div id="project-list">
-                <p>Loading projects via Python...</p>
+    <div class="terminal-window">
+        <div class="terminal-header">
+            <div class="buttons">
+                <span class="close"></span>
+                <span class="minimize"></span>
+                <span class="maximize"></span>
             </div>
-        </section>
+            <div class="title">root@hitrobro: ~/portfolio</div>
+        </div>
+        
+        <div class="terminal-body" id="terminal-output">
+            <div class="banner">
+  _    _ _ _             ____            
+ | |  | (_) |           |  _ \           
+ | |__| |_| |_ _ __ ___ | |_) |_ __ ___  
+ |  __  | | __| '__/ _ \|  _ <| '__/ _ \ 
+ | |  | | | |_| | | (_) | |_) | | | (_) |
+ |_|  |_|_|\__|_|  \___/|____/|_|  \___/ 
+                                         
+ [Cyber Security CoE Student @ Parul University]
+            </div>
+            <p>Welcome to HitroBro Shell v1.0. Type 'help' for commands.</p>
+            <br>
+            
+            <div id="history"></div>
 
-        <footer>
-            <p>Powered by <span class="py-text">PyScript</span> (0% JavaScript)</p>
-            <button id="alert-btn" py-click="show_tip">Get Security Tip</button>
-            <div id="output-area"></div>
-        </footer>
+            <div class="input-line">
+                <span class="prompt">root@hitrobro:~$</span>
+                <input type="text" id="cmd-input" autofocus autocomplete="off">
+            </div>
+        </div>
     </div>
 
     <script type="py">
         from pyscript import document
-        import random
+        from js import window
 
-        def render_projects():
-            projects = [
-                {"name": "NeoShare", "desc": "Secure, multi-threaded HTTP server (Zero-Dep).", "tags": ["Networking", "Sockets"]},
-                {"name": "Modern YTDLP GUI", "desc": "Threaded video downloader with FFmpeg.", "tags": ["Tkinter", "Threading"]},
-                {"name": "403-Forbidden", "desc": "Bluetooth Low Energy (BLE) stress tester.", "tags": ["Security", "Blueborne"]}
-            ]
+        # Portfolio Data
+        projects = {
+            "neoshare": ">> NeoShare (Local Cloud)\n   Status: PUBLIC\n   Tech: Python, Sockets, Threading\n   Desc: Zero-dependency HTTP server with secure file streaming.",
+            "ytdlp": ">> Modern-YTDLP-GUI\n   Status: PUBLIC\n   Tech: Tkinter, FFmpeg, Threading\n   Desc: Multi-threaded desktop media archiver.",
+            "403": ">> 403-Forbidden\n   Status: [COMING SOON]\n   Tech: Bluetooth/BLE\n   Desc: Network stress testing research tool."
+        }
+
+        about_text = """
+        >> IDENTITY: Hitarth Ghia
+        >> ROLE: Cyber Security Student (CoE)
+        >> LOCATION: Parul University
+        >> FOCUS: Network Security, Python Automation, Linux Hardening.
+        """
+
+        contact_text = """
+        >> GitHub: github.com/HitroBro
+        >> Email: [Restricted]
+        """
+
+        help_text = """
+        Available commands:
+        - projects : List all security tools
+        - about    : Display user profile
+        - contact  : Show comms channels
+        - clear    : Wipe terminal
+        - 403      : Run Bluetooth diagnostics (Simulated)
+        """
+
+        def handle_command(event):
+            if event.key != "Enter":
+                return
+
+            input_el = document.getElementById("cmd-input")
+            cmd = input_el.value.strip().lower()
+            input_el.value = ""
+
+            history = document.getElementById("history")
             
-            html = ""
-            for p in projects:
-                tags = "".join([f"<span class='tag'>{t}</span>" for t in p['tags']])
-                html += f"<div class='card'><h3>{p['name']}</h3><p>{p['desc']}</p><div class='tags'>{tags}</div></div>"
-            
-            document.getElementById("project-list").innerHTML = html
+            # Create the "old" command line
+            old_line = document.createElement("div")
+            old_line.className = "history-line"
+            old_line.innerHTML = f'<span class="prompt">root@hitrobro:~$</span> {cmd}'
+            history.appendChild(old_line)
 
-        def show_tip(event):
-            tips = ["Verify hash checksums.", "Don't commit secrets.", "Use 2FA.", "Sanitize inputs."]
-            document.getElementById("output-area").innerText = f"💡 {random.choice(tips)}"
+            # Process Response
+            response = ""
+            if cmd == "help":
+                response = help_text
+            elif cmd == "projects":
+                response = "\n".join(projects.values())
+            elif cmd == "about":
+                response = about_text
+            elif cmd == "contact":
+                response = contact_text
+            elif cmd == "clear":
+                history.innerHTML = ""
+                return
+            elif cmd == "neoshare":
+                window.open("https://github.com/HitroBro/NeoShare-Local-Cloud", "_blank")
+                response = ">> Opening NeoShare repository..."
+            elif cmd == "ytdlp":
+                window.open("https://github.com/HitroBro/Modern-YTDLP-GUI", "_blank")
+                response = ">> Opening Downloader repository..."
+            elif cmd == "":
+                response = ""
+            else:
+                response = f"bash: {cmd}: command not found"
 
-        render_projects()
+            # Create response line
+            if response:
+                resp_div = document.createElement("div")
+                resp_div.className = "response"
+                resp_div.innerText = response
+                history.appendChild(resp_div)
+
+            # Auto-scroll to bottom
+            term_body = document.getElementById("terminal-output")
+            term_body.scrollTop = term_body.scrollHeight
+
+        # Bind Enter key
+        document.getElementById("cmd-input").onkeypress = handle_command
     </script>
 </body>
 </html>
