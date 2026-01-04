@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitarth Ghia | Cyber Security Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.11.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hitarth Ghia <span class="blink">_</span></h1>
+            <p class="subtitle">Cyber Security (CoE) | Python Developer</p>
+        </header>
+
+        <section id="projects">
+            <h2>🛡️ Project Arsenal</h2>
+            <div id="project-list">
+                <p>Loading projects via Python...</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Powered by <span class="py-text">PyScript</span> (0% JavaScript)</p>
+            <button id="alert-btn" py-click="show_tip">Get Security Tip</button>
+            <div id="output-area"></div>
+        </footer>
+    </div>
+
+    <script type="py">
+        from pyscript import document
+        import random
+
+        def render_projects():
+            projects = [
+                {"name": "NeoShare", "desc": "Secure, multi-threaded HTTP server (Zero-Dep).", "tags": ["Networking", "Sockets"]},
+                {"name": "Modern YTDLP GUI", "desc": "Threaded video downloader with FFmpeg.", "tags": ["Tkinter", "Threading"]},
+                {"name": "403-Forbidden", "desc": "Bluetooth Low Energy (BLE) stress tester.", "tags": ["Security", "Blueborne"]}
+            ]
+            
+            html = ""
+            for p in projects:
+                tags = "".join([f"<span class='tag'>{t}</span>" for t in p['tags']])
+                html += f"<div class='card'><h3>{p['name']}</h3><p>{p['desc']}</p><div class='tags'>{tags}</div></div>"
+            
+            document.getElementById("project-list").innerHTML = html
+
+        def show_tip(event):
+            tips = ["Verify hash checksums.", "Don't commit secrets.", "Use 2FA.", "Sanitize inputs."]
+            document.getElementById("output-area").innerText = f"💡 {random.choice(tips)}"
+
+        render_projects()
+    </script>
+</body>
+</html>
