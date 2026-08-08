@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Pelican">
+    <link rel="canonical" href="https://HitroBro.github.io/">
+
+    <!-- SEO -->
+    <title>HitroBro — Technical deep dives into network engineering, systems programming, and security automation</title>
+    <meta name="description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta name="author" content="Hitarth Ghia">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://HitroBro.github.io/">
+    <meta property="og:title" content="HitroBro">
+    <meta property="og:description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta property="og:image" content="https://HitroBro.github.io/images/og-default.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@HitroBro">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Hitarth Ghia",
+      "url": "https://HitroBro.github.io",
+      "sameAs": [
+        "https://github.com/HitroBro",
+        "https://linkedin.com/in/hitarth-ghia"
+      ],
+      "jobTitle": "Cyber Security Student (CoE Track)",
+      "worksFor": { "@type": "Organization", "name": "Parul University" },
+      "knowsAbout": ["Network Engineering", "Security Automation", "C Programming", "Python", "Linux"]
+    }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://HitroBro.github.io/favicon.svg">
+    <link rel="manifest" href="https://HitroBro.github.io/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://HitroBro.github.io/theme/css/main.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header" role="banner">
+        <div class="container header-inner">
+            <a href="https://HitroBro.github.io/" class="logo" aria-label="HitroBro - Home">
+                <span class="logo-mark">H</span>
+                <span>HitroBro</span>
+            </a>
+
+            <button class="mobile-menu-btn" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+
+            <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a href="https://HitroBro.github.io/" class="nav-link active">Home</a></li>
+                    <li><a href="https://HitroBro.github.io/projects/" class="nav-link ">Projects</a></li>
+                    <li><a href="https://HitroBro.github.io/blog/" class="nav-link ">Blog</a></li>
+                    <li><a href="https://HitroBro.github.io/demos/" class="nav-link ">Demos</a></li>
+                    <li><a href="https://HitroBro.github.io/archives/" class="nav-link">Archives</a></li>
+                    <li><a href="https://github.com/HitroBro" class="nav-link nav-cta" target="_blank" rel="noopener noreferrer">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main id="main-content" role="main">
+<section class="section" style="padding-top: calc(var(--header-height) + 3rem);">
+    <div class="container">
+        <header class="section-header">
+            <h1 class="section-title">Technical Blog</h1>
+            <p class="section-subtitle">Deep dives into network engineering, systems programming, and security automation</p>
+        </header>
+
+        <!-- Featured Post -->
+        <article class="card blog-featured" style="margin-bottom: 2rem; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0;">
+                <div style="background: linear-gradient(135deg, var(--accent-primary-dim), transparent); border-right: 1px solid var(--border-primary); padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+                    <span class="tag tag-primary mb-2" style="font-size: 0.875rem; width: fit-content;">Networking</span>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Building a High-Concurrency TCP Gateway with epoll</h2>
+                    <p style="color: var(--fg-secondary); margin-bottom: 1.5rem;">How single-threaded epoll handles thousands of connections, async backend handshakes, and lock-free metrics.</p>
+                    <div style="display: flex; gap: 1rem; color: var(--fg-muted); font-size: 0.85rem;">
+                        <span>Aug 2025</span>
+                        <span>12 min read</span>
+                    </div>
+                </div>
+                <div class="card-body" style="padding: 2.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Key Topics</h3>
+                    <div class="tag-list" style="margin-bottom: 1.5rem;">
+                        <span class="tag">epoll</span>
+                        <span class="tag">timerfd</span>
+                        <span class="tag">signalfd</span>
+                        <span class="tag">C11 Atomics</span>
+                        <span class="tag">Token Bucket</span>
+                    </div>
+                    <a href="https://HitroBro.github.io/blog/epoll-tcp-gateway/" class="btn btn-primary">Read Article</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- Post Grid -->
+        <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--fg-secondary);">Latest Posts</h2>
+        <div class="blog-posts">
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Systems</span>
+                    <h3 class="card-title">Zero-Copy Networking in Linux: io_uring vs epoll</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">Comparing the classic epoll approach with the new io_uring interface for high-performance packet processing. Benchmarks, syscall overhead, and when to migrate.</p>
+                </div>
+                <div class="post-meta">
+                    <span>Jul 2025</span>
+                    <a href="https://HitroBro.github.io/blog/io-uring-vs-epoll/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Security</span>
+                    <h3 class="card-title">Directory Traversal to RCE: Hardening Python HTTP Servers</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">A walkthrough of common path traversal vulnerabilities in custom file servers, and the defense-in-depth approach used in NeoShare (path normalization, chroot-like isolation, upload limits).</p>
+                </div>
+                <div class="post-meta">
+                    <span>Jun 2025</span>
+                    <a href="https://HitroBro.github.io/blog/hardening-python-http/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Networking</span>
+                    <h3 class="card-title">TCP State Machine Visualized: From SYN to TIME_WAIT</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">Interactive breakdown of RFC 793 state transitions. Why TIME_WAIT exists, how Nagle's algorithm affects latency, and what SO_REUSEPORT actually does.</p>
+                </div>
+                <div class="post-meta">
+                    <span>May 2025</span>
+                    <a href="https://HitroBro.github.io/blog/tcp-state-machine/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Automation</span>
+                    <h3 class="card-title">Building a Threaded yt-dlp GUI: Non-blocking I/O Patterns</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">How Modern-YTDLP-GUI achieves responsive UI with threading, queue-based communication, and real-time progress streaming without freezing the main thread.</p>
+                </div>
+                <div class="post-meta">
+                    <span>Apr 2025</span>
+                    <a href="https://HitroBro.github.io/blog/threaded-ytdlp-gui/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Linux</span>
+                    <h3 class="card-title">signalfd: Handling Signals in the Event Loop</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">Why signalfd is superior to signal handlers for event-driven servers. Integrating SIGINT, SIGTERM, and custom signals (SIGUSR1) into epoll without race conditions.</p>
+                </div>
+                <div class="post-meta">
+                    <span>Mar 2025</span>
+                    <a href="https://HitroBro.github.io/blog/signalfd-event-loop/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+
+            <article class="card post-card">
+                <div class="card-header">
+                    <span class="tag tag-primary mb-2">Protocol</span>
+                    <h3 class="card-title">HTTP Range Requests: Building a Video Streaming Server</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">Implementing RFC 7233 Range headers for video seeking and resume downloads. Parsing Range headers, handling multipart/byteranges, and 206 Partial Content responses.</p>
+                </div>
+                <div class="post-meta">
+                    <span>Feb 2025</span>
+                    <a href="https://HitroBro.github.io/blog/http-range-requests/" class="btn btn-ghost btn-sm">Read</a>
+                </div>
+            </article>
+        </div>
+
+        <!-- Newsletter/CTA -->
+        <div style="text-align: center; margin-top: 4rem; padding: 3rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+            <h3 style="margin-bottom: 1rem;">Stay Updated</h3>
+            <p style="color: var(--fg-secondary); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Get new posts delivered to your inbox. No spam, unsubscribe anytime.
+            </p>
+            <form style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                <input type="email" placeholder="your@email.com" style="padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); min-width: 250px;" />
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+            <p style="font-size: 0.8rem; color: var(--fg-muted); margin-top: 0.75rem;">Or subscribe via <a href="https://HitroBro.github.io/feeds/all.atom.xml">RSS</a></p>
+        </div>
+    </div>
+</section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="https://HitroBro.github.io/" class="footer-logo logo" aria-label="HitroBro - Home">
+                        <span class="logo-mark">H</span>
+                        <span>HitroBro</span>
+                    </a>
+                    <p class="footer-tagline">
+                        Cyber Security Student (CoE) • Network Engineering • Security Automation • C Systems Programming
+                    </p>
+                    <div class="social-links">
+                        <a href="https://github.com/HitroBro" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                        <a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="mailto:ghiahitarth@gmail.com" aria-label="Email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </a>
+                        <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <nav>
+                    <h4 class="footer-title">Projects</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/projects/async-tcp-gateway/">Async TCP Gateway</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/neosahre/">NeoShare</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/terminal-portfolio/">Terminal Portfolio</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/blog/">Technical Blog</a></li>
+                        <li><a href="https://HitroBro.github.io/demos/">Interactive Demos</a></li>
+                        <li><a href="https://HitroBro.github.io/archives/">Archives</a></li>
+                        <li><a href="https://HitroBro.github.io/feeds/all.atom.xml">RSS Feed</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:ghiahitarth@gmail.com">Email Me</a></li>
+                        <li><a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener">LinkedIn</a></li>
+                        <li><a href="https://github.com/HitroBro" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="https://github.com/HitroBro/async-tcp-gateway" target="_blank" rel="noopener">Gateway Source</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Hitarth Ghia. Built with Pelican. Open source.</p>
+                <div class="social-links">
+                    <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile nav toggle
+        (function() {
+            const btn = document.querySelector('.mobile-menu-btn');
+            const nav = document.querySelector('.nav-list');
+            if (!btn || !nav) return;
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+            nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                nav.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }));
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && nav.classList.contains('open')) {
+                    nav.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.focus();
+                }
+            });
+        })();
+
+        // Active nav highlight
+        (function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === '/' && currentPath === '/') link.classList.add('active');
+                else if (href !== '/' && currentPath.startsWith(href)) link.classList.add('active');
+            });
+        })();
+    </script>
+
+</body>
+</html>

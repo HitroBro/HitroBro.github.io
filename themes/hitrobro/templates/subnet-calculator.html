@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% set subtitle = "Interactive IPv4/IPv6 subnet calculator with CIDR notation, binary visualization, and classful reference" %}
+
+{% block content %}
+<section class="section" style="padding-top: calc(var(--header-height) + 2rem);">
+    <div class="container">
+        <header style="max-width: 900px; margin: 0 auto 2rem; text-align: center;">
+            <a href="{{ SITEURL }}/demos/" class="btn btn-ghost btn-sm" style="margin-bottom: 1rem; align-self: flex-start;">← Back to Demos</a>
+            <h1 style="margin-bottom: 1rem;">Subnet Calculator</h1>
+            <p style="color: var(--fg-secondary); font-size: 1.1rem;">IPv4 & IPv6 subnet analysis with CIDR, binary view, and classful addressing</p>
+        </header>
+
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <!-- Input Section -->
+            <div class="card" style="margin-bottom: 2rem; padding: 2rem;">
+                <h3 style="margin-bottom: 1.5rem;">Input</h3>
+                <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.5rem; align-items: start;">
+                    <div>
+                        <label for="ip-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--fg-secondary);">IP Address</label>
+                        <input type="text" id="ip-input" placeholder="192.168.1.100 or 2001:db8::1" style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); font-family: var(--font-mono); font-size: 0.95rem;" value="192.168.1.100" />
+                    </div>
+                    <div style="display: flex; align-items: center; color: var(--fg-muted); font-family: var(--font-mono); font-size: 1.25rem;">/</div>
+                    <div>
+                        <label for="cidr-input" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--fg-secondary);">Prefix Length</label>
+                        <input type="number" id="cidr-input" min="0" max="128" style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); font-family: var(--font-mono); font-size: 0.95rem;" value="24" />
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button id="calc-btn" class="btn btn-primary">Calculate</button>
+                    <button id="random-btn" class="btn btn-secondary">Random IPv4</button>
+                    <button id="random6-btn" class="btn btn-secondary">Random IPv6</button>
+                    <button id="clear-btn" class="btn btn-ghost">Clear</button>
+                </div>
+                <p id="error-msg" style="margin-top: 1rem; color: var(--accent-secondary); font-size: 0.9rem; min-height: 1.25rem; display: none;"></p>
+            </div>
+
+            <!-- Results Grid -->
+            <div id="results" style="display: none;">
+                <div class="grid grid-2" style="margin-bottom: 2rem;">
+                    <!-- IPv4 Results -->
+                    <div class="card" id="ipv4-results" style="padding: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="tag tag-primary">IPv4</span>
+                            Results
+                        </h3>
+                        <dl style="display: grid; grid-template-columns: 180px 1fr; gap: 0.5rem 1.5rem; font-family: var(--font-mono); font-size: 0.9rem;">
+                            <dt style="color: var(--fg-muted);">IP Address</dt>
+                            <dd id="r-ip" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">CIDR Notation</dt>
+                            <dd id="r-cidr" style="color: var(--accent-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Network Address</dt>
+                            <dd id="r-network" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Broadcast Address</dt>
+                            <dd id="r-broadcast" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">First Usable Host</dt>
+                            <dd id="r-first" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Last Usable Host</dt>
+                            <dd id="r-last" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Usable Hosts</dt>
+                            <dd id="r-hosts" style="color: var(--accent-primary); font-weight: 600;"></dd>
+                            <dt style="color: var(--fg-muted);">Subnet Mask</dt>
+                            <dd id="r-mask" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Wildcard Mask</dt>
+                            <dd id="r-wildcard" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Binary Subnet Mask</dt>
+                            <dd id="r-mask-bin" style="color: var(--fg-secondary); word-break: break-all;"></dd>
+                            <dt style="color: var(--fg-muted);">IP Class</dt>
+                            <dd id="r-class" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Private Range</dt>
+                            <dd id="r-private" style="color: var(--fg-primary);"></dd>
+                        </dl>
+                    </div>
+
+                    <!-- IPv6 Results -->
+                    <div class="card" id="ipv6-results" style="padding: 1.5rem; display: none;">
+                        <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="tag tag-primary" style="background: var(--accent-info); color: var(--fg-inverse);">IPv6</span>
+                            Results
+                        </h3>
+                        <dl style="display: grid; grid-template-columns: 180px 1fr; gap: 0.5rem 1.5rem; font-family: var(--font-mono); font-size: 0.9rem;">
+                            <dt style="color: var(--fg-muted);">IP Address</dt>
+                            <dd id="r6-ip" style="color: var(--fg-primary); word-break: break-all;"></dd>
+                            <dt style="color: var(--fg-muted);">CIDR Notation</dt>
+                            <dd id="r6-cidr" style="color: var(--accent-info);"></dd>
+                            <dt style="color: var(--fg-muted);">Network Address</dt>
+                            <dd id="r6-network" style="color: var(--fg-primary); word-break: break-all;"></dd>
+                            <dt style="color: var(--fg-muted);">First Usable Host</dt>
+                            <dd id="r6-first" style="color: var(--fg-primary); word-break: break-all;"></dd>
+                            <dt style="color: var(--fg-muted);">Last Usable Host</dt>
+                            <dd id="r6-last" style="color: var(--fg-primary); word-break: break-all;"></dd>
+                            <dt style="color: var(--fg-muted);">Usable Hosts</dt>
+                            <dd id="r6-hosts" style="color: var(--accent-info); font-weight: 600;"></dd>
+                            <dt style="color: var(--fg-muted);">Prefix Length</dt>
+                            <dd id="r6-prefix" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Address Type</dt>
+                            <dd id="r6-type" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Compressed</dt>
+                            <dd id="r6-compressed" style="color: var(--fg-primary);"></dd>
+                            <dt style="color: var(--fg-muted);">Expanded</dt>
+                            <dd id="r6-expanded" style="color: var(--fg-secondary); word-break: break-all;"></dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Binary Visualization -->
+                <div class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Binary Visualization
+                    </h3>
+                    <div id="binary-viz" style="font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8; overflow-x: auto;"></div>
+                </div>
+
+                <!-- Subnet Breakdown -->
+                <div class="card" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                        Subnet Breakdown (/25 to /30)
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.85rem;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-primary);">
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--fg-muted);">Prefix</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--fg-muted);">Subnet Mask</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--fg-muted);">Hosts/Subnet</th>
+                                    <th style="text-align: left; padding: 0.75rem; color: var(--fg-muted);">Subnets in /24</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subnet-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="card" style="padding: 1.5rem; border-color: var(--accent-primary); background: var(--accent-primary-dim);">
+                <h4 style="color: var(--accent-primary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    Quick Reference
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.85rem; color: var(--fg-secondary);">
+                    <div><strong>Class A:</strong> 10.0.0.0/8 (16.7M hosts)</div>
+                    <div><strong>Class B:</strong> 172.16.0.0/12 (1M hosts)</div>
+                    <div><strong>Class C:</strong> 192.168.0.0/16 (65K hosts)</div>
+                    <div><strong>Loopback:</strong> 127.0.0.0/8</div>
+                    <div><strong>Link-Local:</strong> 169.254.0.0/16</div>
+                    <div><strong>Multicast:</strong> 224.0.0.0/4</div>
+                    <div><strong>IPv6 Loopback:</strong> ::1/128</div>
+                    <div><strong>IPv6 Link-Local:</strong> fe80::/10</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function() {
+        // --- IPv4 Helpers ---
+        function ipToInt(ip) {
+            return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0;
+        }
+        function intToIp(int) {
+            return [(int >>> 24) & 255, (int >>> 16) & 255, (int >>> 8) & 255, int & 255].join('.');
+        }
+        function cidrToMask(cidr) {
+            return cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
+        }
+        function maskToCidr(mask) {
+            let cidr = 0;
+            for (let i = 31; i >= 0; i--) {
+                if (mask & (1 << i)) cidr++;
+                else break;
+            }
+            return cidr;
+        }
+        function intToBinary(int, bits = 32) {
+            return int.toString(2).padStart(bits, '0').replace(/(.{8})/g, '$1 ').trim();
+        }
+        function formatBinaryIp(ip) {
+            return ip.split('.').map(o => parseInt(o, 10).toString(2).padStart(8, '0')).join(' ');
+        }
+
+        function getIpClass(ip) {
+            const first = parseInt(ip.split('.')[0], 10);
+            if (first >= 1 && first <= 126) return 'A';
+            if (first >= 128 && first <= 191) return 'B';
+            if (first >= 192 && first <= 223) return 'C';
+            if (first >= 224 && first <= 239) return 'D (Multicast)';
+            if (first >= 240 && first <= 255) return 'E (Reserved)';
+            return 'N/A';
+        }
+
+        function isPrivate(ip) {
+            const int = ipToInt(ip);
+            if ((int & 0xFF000000) === 0x0A000000) return 'Yes (10.0.0.0/8)';
+            if ((int & 0xFFF00000) === 0xAC100000) return 'Yes (172.16.0.0/12)';
+            if ((int & 0xFFFF0000) === 0xC0A80000) return 'Yes (192.168.0.0/16)';
+            if ((int & 0xFF000000) === 0x7F000000) return 'Loopback (127.0.0.0/8)';
+            if ((int & 0xFFFF0000) === 0xA9FE0000) return 'Link-local (169.254.0.0/16)';
+            return 'No (Public)';
+        }
+
+        // --- IPv6 Helpers ---
+        function expandIPv6(ip) {
+            if (ip.includes('::')) {
+                const parts = ip.split('::');
+                const left = parts[0] ? parts[0].split(':') : [];
+                const right = parts[1] ? parts[1].split(':') : [];
+                const missing = 8 - left.length - right.length;
+                return [...left, ...Array(missing).fill('0000'), ...right].map(p => p.padStart(4, '0'));
+            }
+            return ip.split(':').map(p => p.padStart(4, '0'));
+        }
+        function compressIPv6(hextets) {
+            let bestStart = -1, bestLen = 0;
+            let curStart = -1, curLen = 0;
+            for (let i = 0; i < hextets.length; i++) {
+                if (hextets[i] === '0000') {
+                    if (curStart === -1) curStart = i;
+                    curLen++;
+                } else {
+                    if (curLen > bestLen) { bestLen = curLen; bestStart = curStart; }
+                    curStart = -1; curLen = 0;
+                }
+            }
+            if (curLen > bestLen) { bestLen = curLen; bestStart = curStart; }
+            if (bestLen > 1) {
+                const before = hextets.slice(0, bestStart).map(h => parseInt(h, 16).toString(16));
+                const after = hextets.slice(bestStart + bestLen).map(h => parseInt(h, 16).toString(16));
+                return (before.join(':') + '::' + after.join(':')).replace(/^::/, '::').replace(/::$/, '::');
+            }
+            return hextets.map(h => parseInt(h, 16).toString(16)).join(':');
+        }
+        function ipv6ToBigInt(hextets) {
+            let hi = 0n, lo = 0n;
+            for (let i = 0; i < 8; i++) {
+                const val = BigInt('0x' + hextets[i]);
+                if (i < 4) hi = (hi << 16n) | val;
+                else lo = (lo << 16n) | val;
+            }
+            return { hi, lo };
+        }
+        function bigIntToIPv6(hi, lo) {
+            const hextets = [];
+            for (let i = 3; i >= 0; i--) {
+                hextets.unshift(((hi >> (BigInt(i) * 16n)) & 0xFFFFn).toString(16).padStart(4, '0'));
+            }
+            for (let i = 3; i >= 0; i--) {
+                hextets.push(((lo >> (BigInt(i) * 16n)) & 0xFFFFn).toString(16).padStart(4, '0'));
+            }
+            return hextets;
+        }
+        function applyIPv6Mask(hextets, prefix) {
+            const { hi, lo } = ipv6ToBigInt(hextets);
+            let maskHi = 0n, maskLo = 0n;
+            if (prefix >= 64) {
+                maskHi = ~0n;
+                maskLo = prefix === 128 ? ~0n : (~0n << BigInt(128 - prefix));
+            } else {
+                maskHi = (~0n << BigInt(64 - prefix));
+                maskLo = 0n;
+            }
+            return bigIntToIPv6(hi & maskHi, lo & maskLo);
+        }
+        function ipv6Hosts(prefix) {
+            if (prefix >= 127) return '1 (or 0 for /128)';
+            const hostBits = 128 - prefix;
+            if (hostBits > 20) return '2<sup>' + hostBits + '</sup> (astronomical)';
+            return (BigInt(1) << BigInt(hostBits)).toString();
+        }
+        function getIPv6Type(hextets) {
+            const first = parseInt(hextets[0], 16);
+            if (hextets.join(':') === '0000:0000:0000:0000:0000:0000:0000:0001') return 'Loopback (::1)';
+            if (hextets.join(':') === '0000:0000:0000:0000:0000:0000:0000:0000') return 'Unspecified (::)';
+            if ((first & 0xFE00) === 0xFC00) return 'Unique Local (fc00::/7)';
+            if ((first & 0xFE00) === 0xFE80) return 'Link-Local (fe80::/10)';
+            if ((first & 0xFF00) === 0xFF00) return 'Multicast (ff00::/8)';
+            if ((first & 0xE000) === 0x2000) return 'Global Unicast (2000::/3)';
+            return 'Reserved/Other';
+        }
+
+        // --- UI Elements ---
+        const ipInput = document.getElementById('ip-input');
+        const cidrInput = document.getElementById('cidr-input');
+        const calcBtn = document.getElementById('calc-btn');
+        const randomBtn = document.getElementById('random-btn');
+        const random6Btn = document.getElementById('random6-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const errorMsg = document.getElementById('error-msg');
+        const resultsDiv = document.getElementById('results');
+        const ipv4Results = document.getElementById('ipv4-results');
+        const ipv6Results = document.getElementById('ipv6-results');
+        const binaryViz = document.getElementById('binary-viz');
+        const subnetTable = document.getElementById('subnet-table');
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            resultsDiv.style.display = 'none';
+        }
+        function hideError() {
+            errorMsg.style.display = 'none';
+        }
+
+        function calculate() {
+            hideError();
+            const ip = ipInput.value.trim();
+            const cidr = parseInt(cidrInput.value, 10);
+
+            if (!ip) return showError('Please enter an IP address');
+            if (isNaN(cidr) || cidr < 0) return showError('Invalid prefix length');
+
+            const isIPv6 = ip.includes(':');
+
+            if (isIPv6) {
+                if (cidr > 128) return showError('IPv6 prefix max is 128');
+                calculateIPv6(ip, cidr);
+            } else {
+                if (cidr > 32) return showError('IPv4 prefix max is 32');
+                calculateIPv4(ip, cidr);
+            }
+        }
+
+        function calculateIPv4(ip, cidr) {
+            const octets = ip.split('.');
+            if (octets.length !== 4 || octets.some(o => isNaN(o) || o < 0 || o > 255)) {
+                return showError('Invalid IPv4 address');
+            }
+
+            const ipInt = ipToInt(ip);
+            const mask = cidrToMask(cidr);
+            const network = ipInt & mask;
+            const broadcast = network | (~mask >>> 0);
+            const first = network + 1;
+            const last = broadcast - 1;
+            const hosts = cidr >= 31 ? (cidr === 32 ? 0 : 2) : (1 << (32 - cidr)) - 2;
+            const wildcard = ~mask >>> 0;
+
+            ipv4Results.style.display = 'block';
+            ipv6Results.style.display = 'none';
+
+            document.getElementById('r-ip').textContent = ip;
+            document.getElementById('r-cidr').textContent = ip + '/' + cidr;
+            document.getElementById('r-network').textContent = intToIp(network);
+            document.getElementById('r-broadcast').textContent = intToIp(broadcast);
+            document.getElementById('r-first').textContent = cidr >= 31 ? 'N/A' : intToIp(first);
+            document.getElementById('r-last').textContent = cidr >= 31 ? 'N/A' : intToIp(last);
+            document.getElementById('r-hosts').textContent = hosts.toLocaleString();
+            document.getElementById('r-mask').textContent = intToIp(mask) + ' (/ ' + cidr + ')';
+            document.getElementById('r-wildcard').textContent = intToIp(wildcard);
+            document.getElementById('r-mask-bin').textContent = intToBinary(mask);
+            document.getElementById('r-class').textContent = getIpClass(ip);
+            document.getElementById('r-private').textContent = isPrivate(ip);
+
+            // Binary visualization
+            binaryViz.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--fg-primary);">IP Address:</strong>
+                    <code style="display: block; margin-top: 0.5rem; color: var(--accent-primary);">${formatBinaryIp(ip)}</code>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--fg-primary);">Subnet Mask:</strong>
+                    <code style="display: block; margin-top: 0.5rem; color: var(--accent-primary);">${intToBinary(mask)}</code>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--fg-primary);">Network:</strong>
+                    <code style="display: block; margin-top: 0.5rem; color: var(--fg-primary);">${formatBinaryIp(intToIp(network))}</code>
+                </div>
+                <div>
+                    <strong style="color: var(--fg-primary);">Broadcast:</strong>
+                    <code style="display: block; margin-top: 0.5rem; color: var(--fg-primary);">${formatBinaryIp(intToIp(broadcast))}</code>
+                </div>
+            `;
+
+            // Subnet breakdown table
+            subnetTable.innerHTML = '';
+            for (let p = 24; p <= 30; p++) {
+                const subMask = cidrToMask(p);
+                const subHosts = p >= 31 ? (p === 32 ? 0 : 2) : (1 << (32 - p)) - 2;
+                const subnets = 1 << (p - 24);
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border-primary)';
+                tr.innerHTML = `
+                    <td style="padding: 0.75rem; color: ${p === cidr ? 'var(--accent-primary)' : 'var(--fg-primary)'}; font-weight: ${p === cidr ? '600' : '400'};">/${p}</td>
+                    <td style="padding: 0.75rem; color: var(--fg-secondary);">${intToIp(subMask)}</td>
+                    <td style="padding: 0.75rem; color: var(--fg-primary);">${subHosts.toLocaleString()}</td>
+                    <td style="padding: 0.75rem; color: var(--fg-primary);">${subnets}</td>
+                `;
+                subnetTable.appendChild(tr);
+            }
+
+            resultsDiv.style.display = 'block';
+        }
+
+        function calculateIPv6(ip, cidr) {
+            try {
+                const hextets = expandIPv6(ip);
+                if (hextets.length !== 8 || hextets.some(h => !/^[0-9a-fA-F]{1,4}$/.test(h))) {
+                    return showError('Invalid IPv6 address');
+                }
+
+                const networkHextets = applyIPv6Mask(hextets, cidr);
+                const hostCount = ipv6Hosts(cidr);
+                const addrType = getIPv6Type(hextets);
+
+                ipv4Results.style.display = 'none';
+                ipv6Results.style.display = 'block';
+
+                document.getElementById('r6-ip').textContent = compressIPv6(hextets);
+                document.getElementById('r6-cidr').textContent = compressIPv6(hextets) + '/' + cidr;
+                document.getElementById('r6-network').textContent = compressIPv6(networkHextets);
+                document.getElementById('r6-first').textContent = cidr === 128 ? 'N/A' : compressIPv6(networkHextets.map((h, i) => i === 7 ? (parseInt(h, 16) + 1).toString(16).padStart(4, '0') : h));
+                document.getElementById('r6-last').textContent = cidr >= 127 ? 'N/A' : '...';
+                document.getElementById('r6-hosts').innerHTML = hostCount;
+                document.getElementById('r6-prefix').textContent = '/' + cidr;
+                document.getElementById('r6-type').textContent = addrType;
+                document.getElementById('r6-compressed').textContent = compressIPv6(hextets);
+                document.getElementById('r6-expanded').textContent = hextets.join(':');
+
+                // Binary visualization for IPv6 (first 64 bits)
+                const { hi } = ipv6ToBigInt(hextets);
+                const { hi: netHi } = ipv6ToBigInt(networkHextets);
+                binaryViz.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--fg-primary);">IP Address (first 64 bits):</strong>
+                        <code style="display: block; margin-top: 0.5rem; color: var(--accent-info);">${hi.toString(2).padStart(64, '0').replace(/(.{16})/g, '$1 ').trim()}</code>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--fg-primary);">Network Prefix (first 64 bits):</strong>
+                        <code style="display: block; margin-top: 0.5rem; color: var(--accent-info);">${netHi.toString(2).padStart(64, '0').replace(/(.{16})/g, '$1 ').trim()}</code>
+                    </div>
+                    <div style="color: var(--fg-muted); font-size: 0.8rem;">
+                        Showing first 64 bits only. Full 128-bit visualization omitted for readability.
+                    </div>
+                `;
+
+                // Subnet breakdown for IPv6 (common prefixes)
+                subnetTable.innerHTML = '';
+                const commonPrefixes = [32, 40, 48, 56, 64, 72, 80, 96];
+                for (const p of commonPrefixes) {
+                    if (p <= cidr) continue;
+                    const subnets = BigInt(1) << BigInt(p - cidr);
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid var(--border-primary)';
+                    tr.innerHTML = `
+                        <td style="padding: 0.75rem; color: var(--fg-primary);">/${p}</td>
+                        <td style="padding: 0.75rem; color: var(--fg-secondary);">${subnets.toString()} subnets</td>
+                        <td style="padding: 0.75rem; color: var(--fg-primary);">${ipv6Hosts(p)}</td>
+                        <td style="padding: 0.75rem; color: var(--fg-primary);">—</td>
+                    `;
+                    subnetTable.appendChild(tr);
+                }
+
+                resultsDiv.style.display = 'block';
+            } catch (e) {
+                showError('Invalid IPv6 address: ' + e.message);
+            }
+        }
+
+        function randomIPv4() {
+            const octets = Array.from({ length: 4 }, () => Math.floor(Math.random() * 256));
+            ipInput.value = octets.join('.');
+            cidrInput.value = Math.floor(Math.random() * 31) + 1;
+            calculate();
+        }
+        function randomIPv6() {
+            const hextets = Array.from({ length: 8 }, () => Math.floor(Math.random() * 65536).toString(16).padStart(4, '0'));
+            hextets[0] = (parseInt(hextets[0], 16) & 0x1FFF | 0x2000).toString(16).padStart(4, '0');
+            ipInput.value = compressIPv6(hextets);
+            cidrInput.value = Math.floor(Math.random() * 65) + 32;
+            calculate();
+        }
+        function clearAll() {
+            ipInput.value = '';
+            cidrInput.value = '';
+            resultsDiv.style.display = 'none';
+            hideError();
+        }
+
+        calcBtn.addEventListener('click', calculate);
+        randomBtn.addEventListener('click', randomIPv4);
+        random6Btn.addEventListener('click', randomIPv6);
+        clearBtn.addEventListener('click', clearAll);
+        ipInput.addEventListener('keydown', e => e.key === 'Enter' && calculate());
+        cidrInput.addEventListener('keydown', e => e.key === 'Enter' && calculate());
+
+        // Initial calculation
+        calculate();
+    })();
+</script>
+{% endblock %}
