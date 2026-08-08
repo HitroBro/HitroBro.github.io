@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Blog — Technical Deep Dives" description="Technical blog covering network engineering, C systems programming, security automation, Linux internals, and protocol analysis. Written by Hitarth Ghia, Cyber Security Student (CoE Track)." canonical="/blog/">
+
+  <section class="section" style="padding-top: calc(var(--header-height) + 3rem);">
+    <div class="container">
+      <header class="section-header">
+        <h1 class="section-title">Technical Blog</h1>
+        <p class="section-subtitle">Deep dives into network engineering, systems programming, and security automation</p>
+      </header>
+
+      <!-- Featured Post -->
+      <article class="card" style="margin-bottom: 2rem; overflow: hidden;">
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0;">
+          <div style="background: linear-gradient(135deg, var(--accent-primary-dim), transparent); border-right: 1px solid var(--border-primary); padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
+            <span class="tag tag-primary mb-2" style="width: fit-content;">Networking</span>
+            <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Building a High-Concurrency TCP Gateway with epoll</h2>
+            <p style="color: var(--fg-secondary); margin-bottom: 1.5rem;">How single-threaded epoll handles thousands of connections, async backend handshakes, and lock-free metrics.</p>
+            <div style="display: flex; gap: 1rem; color: var(--fg-muted); font-size: 0.85rem;">
+              <span>Aug 2024</span>
+              <span>12 min read</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 2.5rem;">
+            <h3 style="margin-bottom: 1rem;">Key Topics</h3>
+            <div class="tag-list" style="margin-bottom: 1.5rem;">
+              <span class="tag">epoll</span>
+              <span class="tag">timerfd</span>
+              <span class="tag">signalfd</span>
+              <span class="tag">C11 Atomics</span>
+              <span class="tag">Token Bucket</span>
+            </div>
+            <a href="/blog/epoll-tcp-gateway/" class="btn btn-primary">Read Article</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Post Grid -->
+      <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--fg-secondary);">Latest Posts</h2>
+      <div class="grid grid-3">
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Systems</span>
+            <h3 class="card-title">Zero-Copy Networking in Linux: io_uring vs epoll</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Comparing the classic epoll approach with the new io_uring interface for high-performance packet processing. Benchmarks, syscall overhead, and when to migrate.</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">Jul 2024</span>
+              <a href="/blog/io-uring-vs-epoll/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Security</span>
+            <h3 class="card-title">Directory Traversal to RCE: Hardening Python HTTP Servers</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">A walkthrough of common path traversal vulnerabilities in custom file servers, and the defense-in-depth approach used in NeoShare (path normalization, chroot-like isolation, upload limits).</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">Jun 2024</span>
+              <a href="/blog/hardening-python-http/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Networking</span>
+            <h3 class="card-title">TCP State Machine Visualized: From SYN to TIME_WAIT</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Interactive breakdown of RFC 793 state transitions. Why TIME_WAIT exists, how Nagle's algorithm affects latency, and what SO_REUSEPORT actually does.</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">May 2024</span>
+              <a href="/blog/tcp-state-machine/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Automation</span>
+            <h3 class="card-title">Building a Threaded yt-dlp GUI: Non-blocking I/O Patterns</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">How Modern-YTDLP-GUI achieves responsive UI with threading, queue-based communication, and real-time progress streaming without freezing the main thread.</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">Apr 2024</span>
+              <a href="/blog/threaded-ytdlp-gui/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Linux</span>
+            <h3 class="card-title">signalfd: Handling Signals in the Event Loop</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Why signalfd is superior to signal handlers for event-driven servers. Integrating SIGINT, SIGTERM, and custom signals (SIGUSR1) into epoll without race conditions.</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">Mar 2024</span>
+              <a href="/blog/signalfd-event-loop/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <span class="tag tag-primary mb-2">Protocol</span>
+            <h3 class="card-title">HTTP Range Requests: Building a Video Streaming Server</h3>
+          </div>
+          <div class="card-body">
+            <p class="card-description">Implementing RFC 7233 Range headers for video seeking and resume downloads. Parsing Range headers, handling multipart/byteranges, and 206 Partial Content responses.</p>
+          </div>
+          <div class="card-footer">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.85rem; color: var(--fg-muted);">Feb 2024</span>
+              <a href="/blog/http-range-requests/" class="btn btn-ghost btn-sm">Read</a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Newsletter/CTA -->
+      <div style="text-align: center; margin-top: 4rem; padding: 3rem; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--radius-xl);">
+        <h3 style="margin-bottom: 1rem;">Stay Updated</h3>
+        <p style="color: var(--fg-secondary); margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+          Get new posts delivered to your inbox. No spam, unsubscribe anytime.
+        </p>
+        <form style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <input type="email" placeholder="your@email.com" style="padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); min-width: 250px;" />
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+        <p style="font-size: 0.8rem; color: var(--fg-muted); margin-top: 0.75rem;">Or subscribe via <a href="/rss.xml">RSS</a></p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Async TCP Layer 4 Gateway — Deep Dive" description="Technical deep-dive into the async-tcp-gateway: epoll architecture, connection state machine, async backend connections, health check recovery, and metrics observability." canonical="/projects/async-tcp-gateway/" type="article" publishedTime="2024-08-01T00:00:00.000Z" tags={['C', 'epoll', 'networking', 'systems programming', 'TCP', 'load balancing']}>
+
+  <article class="section" style="padding-top: calc(var(--header-height) + 2rem);">
+    <div class="container">
+      <header style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <span class="tag tag-primary mb-3" style="font-size: 0.875rem;">Case Study</span>
+        <h1 style="margin-bottom: 1rem;">Async TCP Layer 4 Gateway</h1>
+        <p style="font-size: 1.25rem; color: var(--fg-secondary); margin-bottom: 2rem;">High-concurrency asynchronous Layer 4 TCP gateway/proxy in C using epoll, timerfd, and signalfd</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+          <span class="tag">C11</span>
+          <span class="tag">epoll</span>
+          <span class="tag">timerfd</span>
+          <span class="tag">signalfd</span>
+          <span class="tag">IPv6</span>
+          <span class="tag">Rate Limiting</span>
+          <span class="tag">Lock-free Atomics</span>
+        </div>
+      </header>
+
+      <div style="max-width: 900px; margin: 0 auto;">
+        <section style="margin-bottom: 3rem;">
+          <h2>Architecture Overview</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>Client → [Gateway:8080] → Backend Pool (127.0.0.1:9001, 127.0.0.1:9002, ...)
+                    ↓
+            epoll Event Loop
+            ├── Listener (accept)
+            ├── Client sockets (EPOLLIN/EPOLLOUT)
+            ├── Backend sockets (async connect + EPOLLOUT handshake)
+            ├── Health probes (timerfd → async connect)
+            └── Signal handling (signalfd)</code></pre>
+
+          <p>The gateway is a single-threaded, event-driven TCP proxy built on Linux <code>epoll</code>. It terminates client connections at the frontend port, maintains a pool of backend servers per route, and distributes connections using atomic round-robin across healthy backends.</p>
+
+          <h3>Key Design Decisions</h3>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;" set:html=`
+            <li><strong>Single-threaded epoll</strong> — Avoids lock contention; scales to thousands of connections on one core</li>
+            <li><code>epoll_data.ptr</code> with typed tokens — O(1) dispatch without FD-to-context hash lookups</li>
+            <li><strong>Async backend connect</strong> — Non-blocking <code>connect()</code> + <code>EPOLLOUT</code> for handshake verification</li>
+            <li><strong><code>timerfd</code> for health checks</strong> — Kernel-driven 5s timer, no userspace sleep loops</li>
+            <li><strong><code>signalfd</code> for signals</strong> — SIGINT/SIGTERM/SIGUSR1 delivered as epoll events</li>
+            <li><strong>Ring buffers with dynamic EPOLLOUT</strong> — Backpressure handling without busy-waiting
+`></ul>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Connection State Machine</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;" set:html=`<code>CONN_STATE_CONNECTING  →  CONN_STATE_ESTABLISHED  →  CONN_STATE_CLOSING
+       ↑                      ↓                         ↓
+   async connect         bidirectional           cleanup +
+   (EPOLLOUT)              proxy                  deferred free</code>`></pre>
+
+          <p>Each client-backend pair forms a bidirectional tunnel. The state machine ensures:</p>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;" set:html=`
+            <li>Proper async connect handshake via <code>getsockopt(SO_ERROR)</code> on <code>EPOLLOUT</code></li>
+            <li>Flow control: only register <code>EPOLLOUT</code> when ring buffer has data</li>
+            <li>Deferred cleanup: sockets closed after both directions finish
+`></ul>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Epoll Token Architecture</h2>
+          <p>Every registered file descriptor carries an <code>EndpointToken</code>:</p>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;" set:html=`<code>typedef enum {
+    TOKEN_LISTENER,       // Accept new clients
+    TOKEN_CLIENT,         // Client ↔ Gateway
+    TOKEN_BACKEND,        // Gateway ↔ Backend
+    TOKEN_TIMER,          // Idle timeout (timerfd)
+    TOKEN_HEALTH_PROBE,   // Backend health check
+    TOKEN_SIGNAL          // SIGINT/SIGTERM/SIGUSR1 (signalfd)
+} TokenRole;
+
+typedef struct {
+    TokenRole role;
+    union {
+        ConnectionContext* conn;
+        BackendServer* backend;
+        struct { int route_idx; } timer;
+        struct { int route_idx; int backend_idx; } probe;
+    };
+} EndpointToken;</code>`></pre>
+
+          <p>This enables O(1) event dispatch — no hash table lookup from FD to context.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Async Backend Connection</h2>
+          <ol style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;">
+            <li>Call <code>connect()</code> — returns <code>EINPROGRESS</code></li>
+            <li>Register <code>EPOLLOUT</code> on the backend socket</li>
+            <li>When <code>EPOLLOUT</code> fires: <code>getsockopt(SO_ERROR)</code> verifies handshake</li>
+            <li>Success: transition to <code>ESTABLISHED</code>, enable <code>EPOLLIN</code> both directions</li>
+            <li>Failure: <code>router_mark_backend_down()</code>, immediate retry next backend</li>
+          </ol>
+
+          <p>This design means <strong>zero connection latency penalty</strong> — the gateway never blocks on backend connect.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Health Check & Auto-Recovery</h2>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;">
+            <li><code>timerfd</code> fires every 5s → <code>router_sweep_health_probes()</code></li>
+            <li>For each DOWN backend without active probe: async <code>connect()</code></li>
+            <li>Probe completion → <code>router_handle_probe_event()</code> verifies <code>SO_ERROR</code></li>
+            <li>Success: <code>router_report_backend_success()</code> → backend back in rotation</li>
+          </ul>
+
+          <p>No external health check process needed — entirely in the event loop.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Rate Limiting (Token Bucket)</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;" set:html=`<code>// Global bucket
+max_connections_per_sec = 1000  // tokens/sec
+
+// Per-IP bucket
+max_connections_per_ip_per_sec = 50  // tokens/sec</code>`></pre>
+
+          <p>Implemented with C11 <code>_Atomic</code> counters — lock-free, minimal overhead. Rejects connections with <code>ECONNREFUSED</code> before accepting.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Metrics & Observability</h2>
+          <p>Send <code>SIGUSR1</code> to dump metrics:</p>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;" set:html=`<code>kill -USR1 <gateway_pid></code>`></pre>
+
+          <p>Output includes:</p>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;">
+            <li>Total/active/failed connections</li>
+            <li>Total bytes read/written</li>
+            <li>Backend failures, health probes initiated/succeeded</li>
+            <li>Per-route backend status (ALIVE/DOWN, active connections, failure count)</li>
+          </ul>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Performance Characteristics</h2>
+          <div class="grid grid-2" style="margin-top: 1.5rem;">
+            <div class="card" style="padding: 1.5rem;">
+              <h4>Connection Handling</h4>
+              <ul style="padding-left: 1.5rem; line-height: 2;">
+                <li>Max concurrent: 1024 (configurable to 65536)</li>
+                <li>Ring buffer: 8KB (configurable)</li>
+                <li>Max epoll events: 256 per wait</li>
+                <li>Idle timeout: 30s (CLOCK_MONOTONIC)</li>
+              </ul>
+            </div>
+            <div class="card" style="padding: 1.5rem;">
+              <h4>TCP Optimizations</h4>
+              <ul style="padding-left: 1.5rem; line-height: 2;">
+                <li>TCP_NODELAY (disable Nagle)</li>
+                <li>SO_KEEPALIVE with custom timing</li>
+                <li>MSG_NOSIGNAL (no SIGPIPE)</li>
+                <li>IPv6 dual-stack (IPV6_V6ONLY=0)</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Links</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+            <a href="https://github.com/HitroBro/async-tcp-gateway" target="_blank" rel="noopener" class="btn btn-primary">Source Code</a>
+            <a href="/projects/" class="btn btn-secondary">← Back to Projects</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

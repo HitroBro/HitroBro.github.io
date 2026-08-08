@@ -1,0 +1,199 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const pathCode = `def safe_path(self, requested_path):
+    # Resolve to absolute path
+    base = os.path.abspath(self.base_dir)
+    target = os.path.abspath(os.path.join(base, requested_path.lstrip("/")))
+
+    # Ensure target is within base directory
+    if not target.startswith(base):
+        raise ForbiddenError("Directory traversal attempt")
+
+    # Normalize (resolve symlinks, .., .)
+    target = os.path.normpath(target)
+    if not target.startswith(base):
+        raise ForbiddenError("Directory traversal attempt")
+
+    return target`;
+
+const postCode = `MAX_UPLOAD_SIZE = 2 * 1024 * 1024 * 1024  # 2GB
+
+def do_POST(self):
+    content_length = int(self.headers.get("Content-Length", 0))
+    if content_length > MAX_UPLOAD_SIZE:
+        self.send_error(413, "Payload Too Large: 2GB limit exceeded")
+        return
+    # ... handle multipart upload`;
+
+const rangeCode = `def send_file_range(self, file_path, range_header):
+    file_size = os.path.getsize(file_path)
+    start, end = parse_range(range_header, file_size)
+
+    self.send_response(206)  # Partial Content
+    self.send_header("Content-Range", "bytes {start}-{end}/{file_size}".format(start=start, end=end, file_size=file_size))
+    self.send_header("Accept-Ranges", "bytes")
+    self.send_header("Content-Length", str(end - start + 1))
+    self.end_headers()
+
+    with open(file_path, "rb") as f:
+        f.seek(start)
+        remaining = end - start + 1
+        while remaining > 0:
+            chunk = f.read(min(8192, remaining))
+            if not chunk: break
+            self.wfile.write(chunk)
+            remaining -= len(chunk)`;
+
+const tarCode = `def stream_folder_as_tar_gz(self, folder_path):
+    self.send_response(200)
+    self.send_header("Content-Type", "application/gzip")
+    self.send_header("Content-Disposition", "attachment; filename=folder.tar.gz")
+    self.send_header("Transfer-Encoding", "chunked")
+    self.end_headers()
+
+    with tarfile.open(fileobj=self.wfile, mode="w|gz") as tar:
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                full = os.path.join(root, file)
+                arcname = os.path.relpath(full, folder_path)
+                tar.add(full, arcname=arcname)`;
+
+const cssCode = `:root {
+  --bg: #0a0c10;
+  --fg: #e8ebf0;
+  --accent: #00d47e;
+  --card: #141820;
+  --border: #242933;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f8f9fa;
+    --fg: #1a1d21;
+    --accent: #12b886;
+    --card: #ffffff;
+    --border: #dee2e6;
+  }
+}`;
+---
+
+<BaseLayout title="NeoShare Local Cloud — Zero-Dependency HTTP Server" description="Technical deep-dive into NeoShare: ThreadedHTTPServer architecture, security hardening (path traversal, upload limits), HTTP Range streaming, auto tar.gz generation, and responsive UI." canonical="/projects/neosahre/" type="article" publishedTime="2024-07-15T00:00:00.000Z" tags={['Python', 'HTTP', 'Threading', 'Security', 'File Server', 'Zero Dependencies']}>
+
+  <article class="section" style="padding-top: calc(var(--header-height) + 2rem);">
+    <div class="container">
+      <header style="max-width: 800px; margin: 0 auto 3rem; text-align: center;">
+        <span class="tag tag-primary mb-3" style="font-size: 0.875rem;">Case Study</span>
+        <h1 style="margin-bottom: 1rem;">NeoShare Local Cloud</h1>
+        <p style="font-size: 1.25rem; color: var(--fg-secondary); margin-bottom: 2rem;">Zero-dependency HTTP file server with threaded architecture, security hardening, and modern UX</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+          <span class="tag">Python 3</span>
+          <span class="tag">ThreadingHTTPServer</span>
+          <span class="tag">Zero Deps</span>
+          <span class="tag">Range Requests</span>
+          <span class="tag">Security Hardened</span>
+        </div>
+      </header>
+
+      <div style="max-width: 900px; margin: 0 auto;">
+        <section style="margin-bottom: 3rem;">
+          <h2>Motivation</h2>
+          <p>Python's built-in <code>http.server</code> is single-threaded — it blocks on every request. For file transfers, this means one download/upload freezes the entire server. NeoShare solves this with <code>ThreadingHTTPServer</code> while adding security features missing from the stdlib.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Architecture</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>NeoShare/
+├── server.py       # ThreadedHTTPServer + custom RequestHandler
+├── index.html      # Responsive UI (auto dark/light)
+├── script.js       # Fetch API: upload, download, navigate, stream
+├── styles.css      # Cyberpunk theme, CSS variables
+└── README.md</code></pre>
+
+          <h3>Threading Model</h3>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+
+class NeoShareHandler(BaseHTTPRequestHandler):
+    # Custom implementations for GET, POST, HEAD
+    # ThreadingHTTPServer spawns one thread per connection
+
+server = ThreadingHTTPServer(("", 8000), NeoShareHandler)
+server.serve_forever()</code></pre>
+
+          <p>Each connection gets its own thread — file transfers don't block other clients.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Security Hardening</h2>
+
+          <h3>Path Traversal Protection</h3>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>{pathCode}</code></pre>
+
+          <h3>Upload Size Limit (DoS Prevention)</h3>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>{postCode}</code></pre>
+
+          <h3>Custom Multipart Parser</h3>
+          <p>No external dependencies — manual <code>multipart/form-data</code> parsing handles drag-and-drop uploads with streaming (no full body buffering).</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>HTTP Range Streaming (Video Seeking)</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>{rangeCode}</code></pre>
+
+          <p>Enables <strong>video seeking</strong> and <strong>resume downloads</strong> in browsers — critical for media sharing.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Auto tar.gz Folder Downloads</h2>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>{tarCode}</code></pre>
+
+          <p>Streams compressed archive <strong>on-the-fly</strong> — no temporary files, no memory spike.</p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Responsive UI</h2>
+          <ul style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;">
+            <li><strong>Auto theme detection:</strong> <code>@media (prefers-color-scheme: dark)</code></li>
+            <li><strong>Drag-and-drop upload:</strong> HTML5 File API + Fetch</li>
+            <li><strong>Virtual scrolling:</strong> Handles directories with thousands of files</li>
+            <li><strong>Mobile-first:</strong> Touch-friendly, responsive breakpoints</li>
+            <li><strong>Video player integration:</strong> Native <code><video></code> with Range support</li>
+          </ul>
+
+          <h3>CSS Variables (Theme System)</h3>
+          <pre style="margin: 1.5rem 0; font-size: 0.85rem;"><code>{cssCode}</code></pre>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2>Performance</h2>
+          <div class="grid grid-2" style="margin-top: 1.5rem;">
+            <div class="card" style="padding: 1.5rem;">
+              <h4>Concurrency</h4>
+              <ul style="padding-left: 1.5rem; line-height: 2;">
+                <li>One thread per connection</li>
+                <li>No GIL contention on I/O (releases GIL)</li>
+                <li>Scales to hundreds of simultaneous clients</li>
+              </ul>
+            </div>
+            <div class="card" style="padding: 1.5rem;">
+              <h4>Memory</h4>
+              <ul style="padding-left: 1.5rem; line-height: 2;">
+                <li>Streaming uploads (no full buffering)</li>
+                <li>Chunked transfer encoding</li>
+                <li>2GB upload cap prevents OOM</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Links</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+            <a href="https://github.com/HitroBro/NeoShare-Local-Cloud" target="_blank" rel="noopener" class="btn btn-primary">Source Code</a>
+            <a href="/projects/" class="btn btn-secondary">← Back to Projects</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

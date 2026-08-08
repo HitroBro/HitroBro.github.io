@@ -1,0 +1,796 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Packet Header Visualizer — Interactive Network Demo" description="Interactive Ethernet II, IPv4, TCP, and UDP header breakdown with real-time field editing and automatic checksum calculation." canonical="/demos/packet-header-viz/" type="article">
+
+  <section class="section" style="padding-top: calc(var(--header-height) + 2rem);">
+    <div class="container">
+      <header style="max-width: 1100px; margin: 0 auto 2rem; text-align: center;">
+        <a href="/demos/" class="btn btn-ghost btn-sm" style="margin-bottom: 1rem; align-self: flex-start;">← Back to Demos</a>
+        <h1 style="margin-bottom: 1rem;">Packet Header Visualizer</h1>
+        <p style="color: var(--fg-secondary); font-size: 1.1rem;">Interactive Ethernet II / IPv4 / TCP / UDP header breakdown with real-time checksum calculation</p>
+      </header>
+
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Protocol Selector -->
+        <div class="card" style="margin-bottom: 2rem; padding: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">Protocol Stack</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="toggle-eth" checked disabled>
+              <span>Ethernet II</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="toggle-ip" checked>
+              <span>IPv4</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="toggle-tcp" checked>
+              <span>TCP</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="toggle-udp">
+              <span>UDP</span>
+            </label>
+            <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+              <button id="preset-syn" class="btn btn-secondary btn-sm">SYN Packet</button>
+              <button id="preset-http" class="btn btn-secondary btn-sm">HTTP Request</button>
+              <button id="preset-dns" class="btn btn-secondary btn-sm">DNS Query</button>
+              <button id="preset-random" class="btn btn-ghost btn-sm">Random</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Header Visualization -->
+        <div id="headers-container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <!-- Ethernet II Header -->
+          <div class="card" id="eth-header" style="padding: 1.5rem; border-left: 4px solid var(--accent-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="tag tag-primary">L2</span>
+                Ethernet II Frame
+              </h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-ghost btn-sm" data-action="copy-eth">Copy Hex</button>
+                <button class="btn btn-ghost btn-sm" data-action="raw-eth">Raw Bytes</button>
+              </div>
+            </div>
+            <div id="eth-fields" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
+          </div>
+
+          <!-- IPv4 Header -->
+          <div class="card" id="ip-header" style="padding: 1.5rem; border-left: 4px solid var(--accent-info);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="tag" style="background: var(--accent-info); color: var(--fg-inverse);">L3</span>
+                IPv4 Header
+              </h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-ghost btn-sm" data-action="copy-ip">Copy Hex</button>
+                <button class="btn btn-ghost btn-sm" data-action="raw-ip">Raw Bytes</button>
+                <button class="btn btn-ghost btn-sm" data-action="verify-ip">Verify Checksum</button>
+              </div>
+            </div>
+            <div id="ip-fields" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
+          </div>
+
+          <!-- TCP Header -->
+          <div class="card" id="tcp-header" style="padding: 1.5rem; border-left: 4px solid var(--accent-warning);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="tag" style="background: var(--accent-warning); color: var(--fg-inverse);">L4</span>
+                TCP Segment
+              </h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-ghost btn-sm" data-action="copy-tcp">Copy Hex</button>
+                <button class="btn btn-ghost btn-sm" data-action="raw-tcp">Raw Bytes</button>
+                <button class="btn btn-ghost btn-sm" data-action="verify-tcp">Verify Checksum</button>
+              </div>
+            </div>
+            <div id="tcp-fields" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
+          </div>
+
+          <!-- UDP Header -->
+          <div class="card" id="udp-header" style="padding: 1.5rem; border-left: 4px solid var(--accent-secondary); display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="tag" style="background: var(--accent-secondary); color: var(--fg-inverse);">L4</span>
+                UDP Datagram
+              </h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-ghost btn-sm" data-action="copy-udp">Copy Hex</button>
+                <button class="btn btn-ghost btn-sm" data-action="raw-udp">Raw Bytes</button>
+                <button class="btn btn-ghost btn-sm" data-action="verify-udp">Verify Checksum</button>
+              </div>
+            </div>
+            <div id="udp-fields" style="font-family: var(--font-mono); font-size: 0.85rem;"></div>
+          </div>
+        </div>
+
+        <!-- Full Packet Hex Dump -->
+        <div class="card" style="padding: 1.5rem;">
+          <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 18 2 12 8 6"></polyline>
+            </svg>
+            Complete Packet Hex Dump
+          </h3>
+          <pre id="hex-dump" style="font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.6; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: 1rem; overflow-x: auto; color: var(--fg-secondary);"></pre>
+          <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <button id="copy-full" class="btn btn-primary btn-sm">Copy Full Packet</button>
+            <button id="download-pcap" class="btn btn-secondary btn-sm">Download .pcap</button>
+          </div>
+        </div>
+
+        <!-- Payload Editor -->
+        <div class="card" style="padding: 1.5rem;">
+          <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <line x1="18" y1="9" x2="18" y2="21"></line>
+              <line x1="12" y1="15" x2="24" y2="15"></line>
+            </svg>
+            Payload / Application Data
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--fg-secondary);">Hex</label>
+              <textarea id="payload-hex" rows="6" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); font-family: var(--font-mono); font-size: 0.8rem; resize: vertical;" placeholder="48 65 6C 6C 6F 20 57 6F 72 6C 64"></textarea>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--fg-secondary);">ASCII / Text</label>
+              <textarea id="payload-text" rows="6" style="width: 100%; padding: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--fg-primary); font-family: var(--font-mono); font-size: 0.8rem; resize: vertical;" placeholder="Hello World"></textarea>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <button id="payload-to-text" class="btn btn-secondary btn-sm">Hex → Text</button>
+            <button id="payload-to-hex" class="btn btn-secondary btn-sm">Text → Hex</button>
+            <button id="payload-clear" class="btn btn-ghost btn-sm">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function() {
+      // --- State ---
+      let state = {
+        eth: {
+          dst: '00:1A:2B:3C:4D:5E',
+          src: 'AA:BB:CC:DD:EE:FF',
+          type: '0x0800' // IPv4
+        },
+        ip: {
+          version: 4,
+          ihl: 5,
+          dscp: 0,
+          ecn: 0,
+          totalLen: 0, // auto
+          identification: 0x1234,
+          flags: 2, // Don't Fragment
+          fragOffset: 0,
+          ttl: 64,
+          protocol: 6, // TCP
+          checksum: 0, // auto
+          src: '192.168.1.100',
+          dst: '10.0.0.1'
+        },
+        tcp: {
+          srcPort: 54321,
+          dstPort: 80,
+          seqNum: 0x10000000,
+          ackNum: 0,
+          dataOffset: 5,
+          reserved: 0,
+          flags: { fin: 0, syn: 1, rst: 0, psh: 0, ack: 0, urg: 0, ece: 0, cwr: 0 },
+          window: 65535,
+          checksum: 0, // auto
+          urgentPtr: 0,
+          options: []
+        },
+        udp: {
+          srcPort: 54321,
+          dstPort: 53,
+          length: 0, // auto
+          checksum: 0 // auto
+        },
+        payload: new Uint8Array()
+      };
+
+      // --- Helpers ---
+      function macToBytes(mac) {
+        return mac.split(':').map(b => parseInt(b, 16));
+      }
+      function ipToBytes(ip) {
+        return ip.split('.').map(b => parseInt(b, 10));
+      }
+      function bytesToHex(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+      }
+      function bytesToHexCompact(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      function hexToBytes(hex) {
+        return hex.split(/\s+/).filter(s => s).map(b => parseInt(b, 16));
+      }
+
+      // Internet checksum (RFC 1071)
+      function checksum(data) {
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 2) {
+          let word = (data[i] << 8) | (data[i + 1] || 0);
+          sum += word;
+          while (sum > 0xFFFF) sum = (sum & 0xFFFF) + (sum >> 16);
+        }
+        return (~sum) & 0xFFFF;
+      }
+
+      // IPv4 pseudo-header for TCP/UDP checksum
+      function pseudoHeader(ipSrc, ipDst, protocol, length) {
+        const buf = new Uint8Array(12);
+        const src = ipToBytes(ipSrc);
+        const dst = ipToBytes(ipDst);
+        buf.set(src, 0);
+        buf.set(dst, 4);
+        buf[8] = 0;
+        buf[9] = protocol;
+        buf[10] = (length >> 8) & 0xFF;
+        buf[11] = length & 0xFF;
+        return buf;
+      }
+
+      function buildEthernet() {
+        const dst = macToBytes(state.eth.dst);
+        const src = macToBytes(state.eth.src);
+        const type = parseInt(state.eth.type, 16);
+        const buf = new Uint8Array(14);
+        buf.set(dst, 0);
+        buf.set(src, 6);
+        buf[12] = (type >> 8) & 0xFF;
+        buf[13] = type & 0xFF;
+        return buf;
+      }
+
+      function buildIPv4() {
+        const ihl = state.ip.ihl;
+        const buf = new Uint8Array(ihl * 4);
+        // Version + IHL
+        buf[0] = (state.ip.version << 4) | ihl;
+        // DSCP + ECN
+        buf[1] = ((state.ip.dscp & 0x3F) << 2) | (state.ip.ecn & 0x03);
+        // Total Length (filled later)
+        // Identification
+        buf[4] = (state.ip.identification >> 8) & 0xFF;
+        buf[5] = state.ip.identification & 0xFF;
+        // Flags + Fragment Offset
+        buf[6] = ((state.ip.flags & 0x07) << 5) | ((state.ip.fragOffset >> 8) & 0x1F);
+        buf[7] = state.ip.fragOffset & 0xFF;
+        // TTL
+        buf[8] = state.ip.ttl;
+        // Protocol
+        buf[9] = state.ip.protocol;
+        // Checksum (0 for calculation)
+        buf[10] = 0;
+        buf[11] = 0;
+        // Source IP
+        const src = ipToBytes(state.ip.src);
+        buf.set(src, 12);
+        // Dest IP
+        const dst = ipToBytes(state.ip.dst);
+        buf.set(dst, 16);
+        // Options (if IHL > 5)
+        // Calculate checksum
+        const cs = checksum(buf);
+        buf[10] = (cs >> 8) & 0xFF;
+        buf[11] = cs & 0xFF;
+        return buf;
+      }
+
+      function buildTCP(payloadLen = 0) {
+        const dataOffset = state.tcp.dataOffset;
+        const buf = new Uint8Array(dataOffset * 4);
+        // Source Port
+        buf[0] = (state.tcp.srcPort >> 8) & 0xFF;
+        buf[1] = state.tcp.srcPort & 0xFF;
+        // Dest Port
+        buf[2] = (state.tcp.dstPort >> 8) & 0xFF;
+        buf[3] = state.tcp.dstPort & 0xFF;
+        // Sequence Number
+        buf[4] = (state.tcp.seqNum >> 24) & 0xFF;
+        buf[5] = (state.tcp.seqNum >> 16) & 0xFF;
+        buf[6] = (state.tcp.seqNum >> 8) & 0xFF;
+        buf[7] = state.tcp.seqNum & 0xFF;
+        // Ack Number
+        buf[8] = (state.tcp.ackNum >> 24) & 0xFF;
+        buf[9] = (state.tcp.ackNum >> 16) & 0xFF;
+        buf[10] = (state.tcp.ackNum >> 8) & 0xFF;
+        buf[11] = state.tcp.ackNum & 0xFF;
+        // Data Offset + Reserved + Flags
+        const flags = (state.tcp.flags.fin ? 0x01 : 0) |
+                      (state.tcp.flags.syn ? 0x02 : 0) |
+                      (state.tcp.flags.rst ? 0x04 : 0) |
+                      (state.tcp.flags.psh ? 0x08 : 0) |
+                      (state.tcp.flags.ack ? 0x10 : 0) |
+                      (state.tcp.flags.urg ? 0x20 : 0) |
+                      (state.tcp.flags.ece ? 0x40 : 0) |
+                      (state.tcp.flags.cwr ? 0x80 : 0);
+        buf[12] = (state.tcp.dataOffset << 4) | (state.tcp.reserved & 0x0F);
+        buf[13] = flags;
+        // Window
+        buf[14] = (state.tcp.window >> 8) & 0xFF;
+        buf[15] = state.tcp.window & 0xFF;
+        // Checksum (0 for calculation)
+        buf[16] = 0;
+        buf[17] = 0;
+        // Urgent Pointer
+        buf[18] = (state.tcp.urgentPtr >> 8) & 0xFF;
+        buf[19] = state.tcp.urgentPtr & 0xFF;
+        // Options (if dataOffset > 5)
+
+        // Calculate checksum with pseudo-header
+        const tcpLen = buf.length + payloadLen;
+        const pseudo = pseudoHeader(state.ip.src, state.ip.dst, 6, tcpLen);
+        const forChecksum = new Uint8Array(pseudo.length + buf.length + payloadLen);
+        forChecksum.set(pseudo, 0);
+        forChecksum.set(buf, pseudo.length);
+        if (payloadLen > 0) {
+          forChecksum.set(state.payload, pseudo.length + buf.length);
+        }
+        const cs = checksum(forChecksum);
+        buf[16] = (cs >> 8) & 0xFF;
+        buf[17] = cs & 0xFF;
+
+        return buf;
+      }
+
+      function buildUDP() {
+        const payloadLen = state.payload.length;
+        const udpLen = 8 + payloadLen;
+        const buf = new Uint8Array(8);
+        // Source Port
+        buf[0] = (state.udp.srcPort >> 8) & 0xFF;
+        buf[1] = state.udp.srcPort & 0xFF;
+        // Dest Port
+        buf[2] = (state.udp.dstPort >> 8) & 0xFF;
+        buf[3] = state.udp.dstPort & 0xFF;
+        // Length
+        buf[4] = (udpLen >> 8) & 0xFF;
+        buf[5] = udpLen & 0xFF;
+        // Checksum (0 for calculation)
+        buf[6] = 0;
+        buf[7] = 0;
+
+        // Calculate checksum with pseudo-header
+        const pseudo = pseudoHeader(state.ip.src, state.ip.dst, 17, udpLen);
+        const forChecksum = new Uint8Array(pseudo.length + buf.length + payloadLen);
+        forChecksum.set(pseudo, 0);
+        forChecksum.set(buf, pseudo.length);
+        if (payloadLen > 0) {
+          forChecksum.set(state.payload, pseudo.length + buf.length);
+        }
+        const cs = checksum(forChecksum);
+        buf[6] = (cs >> 8) & 0xFF;
+        buf[7] = cs & 0xFF;
+
+        return buf;
+      }
+
+      function buildFullPacket() {
+        const eth = buildEthernet();
+        const ip = buildIPv4();
+        const isTCP = document.getElementById('toggle-tcp').checked;
+        const isUDP = document.getElementById('toggle-udp').checked;
+
+        let l4;
+        if (isTCP) {
+          l4 = buildTCP(state.payload.length);
+        } else if (isUDP) {
+          l4 = buildUDP();
+        } else {
+          l4 = new Uint8Array(0);
+        }
+
+        // Update IP total length
+        const ipTotalLen = ip.length + l4.length + state.payload.length;
+        ip[2] = (ipTotalLen >> 8) & 0xFF;
+        ip[3] = ipTotalLen & 0xFF;
+        // Recalculate IP checksum
+        const ipCs = checksum(ip);
+        ip[10] = (ipCs >> 8) & 0xFF;
+        ip[11] = ipCs & 0xFF;
+
+        const full = new Uint8Array(eth.length + ip.length + l4.length + state.payload.length);
+        full.set(eth, 0);
+        full.set(ip, eth.length);
+        full.set(l4, eth.length + ip.length);
+        if (state.payload.length > 0) {
+          full.set(state.payload, eth.length + ip.length + l4.length);
+        }
+        return { eth, ip, l4, full, isTCP, isUDP };
+      }
+
+      function formatField(label, value, offset, length, editable = false, onChange = null) {
+        const editableAttr = editable ? 'contenteditable="true" data-field="' + label + '"' : '';
+        const editableClass = editable ? 'editable-field' : '';
+        return `
+          <div class="header-field ${editableClass}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-primary);">
+            <span style="color: var(--fg-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">${label}</span>
+            <span style="color: var(--fg-primary); min-width: 180px; font-family: var(--font-mono);" ${editableAttr} data-offset="${offset}" data-length="${length}">${value}</span>
+            <span style="color: var(--fg-muted); font-size: 0.75rem;">offset ${offset}, ${length} byte${length > 1 ? 's' : ''}</span>
+          </div>
+        `;
+      }
+
+      function formatBitField(label, value, bits, offset, bitOffset) {
+        return `
+          <div class="header-field" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-primary);">
+            <span style="color: var(--fg-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 120px;">${label}</span>
+            <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+              ${bits.map((b, i) => `
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.7rem; color: ${b.value ? 'var(--accent-primary)' : 'var(--fg-muted)'};" title="Bit ${bitOffset + i}: ${b.name}">${b.value}</span>
+              `).join('')}
+            </div>
+            <span style="color: var(--fg-primary); font-family: var(--font-mono); min-width: 80px;">= ${value}</span>
+            <span style="color: var(--fg-muted); font-size: 0.75rem;">bits ${bitOffset}-${bitOffset + bits.length - 1}</span>
+          </div>
+        `;
+      }
+
+      function renderEthernet() {
+        const eth = buildEthernet();
+        const container = document.getElementById('eth-fields');
+        container.innerHTML = `
+          ${formatField('Destination MAC', state.eth.dst, 0, 6, true, e => state.eth.dst = e.target.textContent)}
+          ${formatField('Source MAC', state.eth.src, 6, 6, true, e => state.eth.src = e.target.textContent)}
+          ${formatField('EtherType', state.eth.type + ' (IPv4)', 12, 2)}
+        `;
+      }
+
+      function renderIPv4() {
+        const ip = buildIPv4();
+        const container = document.getElementById('ip-fields');
+        const totalLen = ip.length + (document.getElementById('toggle-tcp').checked ? buildTCP(state.payload.length).length : buildUDP().length) + state.payload.length;
+        container.innerHTML = `
+          ${formatBitField('Version + IHL', (state.ip.version << 4) | state.ip.ihl, [
+            {name: 'Ver', value: (state.ip.version >> 3) & 1},
+            {name: 'Ver', value: (state.ip.version >> 2) & 1},
+            {name: 'Ver', value: (state.ip.version >> 1) & 1},
+            {name: 'Ver', value: state.ip.version & 1},
+            {name: 'IHL', value: (state.ip.ihl >> 3) & 1},
+            {name: 'IHL', value: (state.ip.ihl >> 2) & 1},
+            {name: 'IHL', value: (state.ip.ihl >> 1) & 1},
+            {name: 'IHL', value: state.ip.ihl & 1}
+          ], 0, 0)}
+          ${formatBitField('DSCP + ECN', ((state.ip.dscp & 0x3F) << 2) | (state.ip.ecn & 0x03), [
+            {name: 'DSCP', value: (state.ip.dscp >> 5) & 1},
+            {name: 'DSCP', value: (state.ip.dscp >> 4) & 1},
+            {name: 'DSCP', value: (state.ip.dscp >> 3) & 1},
+            {name: 'DSCP', value: (state.ip.dscp >> 2) & 1},
+            {name: 'DSCP', value: (state.ip.dscp >> 1) & 1},
+            {name: 'DSCP', value: state.ip.dscp & 1},
+            {name: 'ECN', value: (state.ip.ecn >> 1) & 1},
+            {name: 'ECN', value: state.ip.ecn & 1}
+          ], 1, 0)}
+          ${formatField('Total Length', totalLen + ' bytes', 2, 2)}
+          ${formatField('Identification', '0x' + state.ip.identification.toString(16).padStart(4, '0'), 4, 2)}
+          ${formatBitField('Flags + Frag Offset', ((state.ip.flags & 0x07) << 13) | (state.ip.fragOffset & 0x1FFF), [
+            {name: 'RSV', value: (state.ip.flags >> 2) & 1},
+            {name: 'DF', value: (state.ip.flags >> 1) & 1},
+            {name: 'MF', value: state.ip.flags & 1},
+            {name: 'FO', value: (state.ip.fragOffset >> 12) & 1},
+            {name: 'FO', value: (state.ip.fragOffset >> 11) & 1},
+            {name: 'FO', value: (state.ip.fragOffset >> 10) & 1},
+            {name: 'FO', value: (state.ip.fragOffset >> 9) & 1},
+            {name: 'FO', value: (state.ip.fragOffset >> 8) & 1}
+          ], 6, 0)}
+          ${formatField('Frag Offset (cont.)', '', 8, 0)}
+          ${formatField('TTL', state.ip.ttl, 8, 1)}
+          ${formatField('Protocol', state.ip.protocol + ' (' + (state.ip.protocol === 6 ? 'TCP' : state.ip.protocol === 17 ? 'UDP' : 'Other') + ')', 9, 1)}
+          ${formatField('Header Checksum', '0x' + ip[10].toString(16).padStart(2, '0') + ip[11].toString(16).padStart(2, '0'), 10, 2)}
+          ${formatField('Source IP', state.ip.src, 12, 4, true, e => state.ip.src = e.target.textContent)}
+          ${formatField('Dest IP', state.ip.dst, 16, 4, true, e => state.ip.dst = e.target.textContent)}
+        `;
+      }
+
+      function renderTCP() {
+        const tcp = buildTCP(state.payload.length);
+        const container = document.getElementById('tcp-fields');
+        const flags = state.tcp.flags;
+        container.innerHTML = `
+          ${formatField('Source Port', state.tcp.srcPort, 0, 2, true, e => state.tcp.srcPort = parseInt(e.target.textContent) || 0)}
+          ${formatField('Dest Port', state.tcp.dstPort, 2, 2, true, e => state.tcp.dstPort = parseInt(e.target.textContent) || 0)}
+          ${formatField('Sequence Number', '0x' + state.tcp.seqNum.toString(16).padStart(8, '0') + ' (' + state.tcp.seqNum + ')', 4, 4)}
+          ${formatField('Ack Number', '0x' + state.tcp.ackNum.toString(16).padStart(8, '0') + ' (' + state.tcp.ackNum + ')', 8, 4)}
+          ${formatBitField('Data Offset + Reserved + Flags', (state.tcp.dataOffset << 12) | flagsByte(flags), [
+            {name: 'DO', value: (state.tcp.dataOffset >> 3) & 1},
+            {name: 'DO', value: (state.tcp.dataOffset >> 2) & 1},
+            {name: 'DO', value: (state.tcp.dataOffset >> 1) & 1},
+            {name: 'DO', value: state.tcp.dataOffset & 1},
+            {name: 'RSV', value: (state.tcp.reserved >> 2) & 1},
+            {name: 'RSV', value: (state.tcp.reserved >> 1) & 1},
+            {name: 'RSV', value: state.tcp.reserved & 1},
+            {name: 'NS', value: 0},
+            {name: 'CWR', value: flags.cwr},
+            {name: 'ECE', value: flags.ece},
+            {name: 'URG', value: flags.urg},
+            {name: 'ACK', value: flags.ack},
+            {name: 'PSH', value: flags.psh},
+            {name: 'RST', value: flags.rst},
+            {name: 'SYN', value: flags.syn},
+            {name: 'FIN', value: flags.fin}
+          ], 12, 0)}
+          ${formatField('Window Size', state.tcp.window, 14, 2, true, e => state.tcp.window = parseInt(e.target.textContent) || 0)}
+          ${formatField('Checksum', '0x' + tcp[16].toString(16).padStart(2, '0') + tcp[17].toString(16).padStart(2, '0'), 16, 2)}
+          ${formatField('Urgent Pointer', state.tcp.urgentPtr, 18, 2)}
+        `;
+      }
+
+      function renderUDP() {
+        const udp = buildUDP();
+        const container = document.getElementById('udp-fields');
+        container.innerHTML = `
+          ${formatField('Source Port', state.udp.srcPort, 0, 2, true, e => state.udp.srcPort = parseInt(e.target.textContent) || 0)}
+          ${formatField('Dest Port', state.udp.dstPort, 2, 2, true, e => state.udp.dstPort = parseInt(e.target.textContent) || 0)}
+          ${formatField('Length', udp.length + state.payload.length + ' bytes', 4, 2)}
+          ${formatField('Checksum', '0x' + udp[6].toString(16).padStart(2, '0') + udp[7].toString(16).padStart(2, '0'), 6, 2)}
+        `;
+      }
+
+      function flagsByte(flags) {
+        return (flags.fin ? 0x01 : 0) |
+               (flags.syn ? 0x02 : 0) |
+               (flags.rst ? 0x04 : 0) |
+               (flags.psh ? 0x08 : 0) |
+               (flags.ack ? 0x10 : 0) |
+               (flags.urg ? 0x20 : 0) |
+               (flags.ece ? 0x40 : 0) |
+               (flags.cwr ? 0x80 : 0);
+      }
+
+      function renderHexDump() {
+        const { full } = buildFullPacket();
+        const dump = document.getElementById('hex-dump');
+        let out = '';
+        for (let i = 0; i < full.length; i += 16) {
+          const chunk = full.slice(i, i + 16);
+          const hex = chunk.map(b => b.toString(16).padStart(2, '0')).join(' ');
+          const ascii = chunk.map(b => b >= 32 && b < 127 ? String.fromCharCode(b) : '.').join('');
+          out += `${i.toString(16).padStart(4, '0')}:  ${hex.padEnd(47, ' ')}  |${ascii}|\n`;
+        }
+        dump.textContent = out;
+      }
+
+      function renderAll() {
+        renderEthernet();
+        renderIPv4();
+        renderTCP();
+        renderUDP();
+        renderHexDump();
+      }
+
+      // --- Event Listeners ---
+      document.getElementById('toggle-ip').addEventListener('change', e => {
+        document.getElementById('ip-header').style.display = e.target.checked ? 'block' : 'none';
+        document.getElementById('toggle-tcp').disabled = !e.target.checked;
+        document.getElementById('toggle-udp').disabled = !e.target.checked;
+        if (!e.target.checked) {
+          document.getElementById('toggle-tcp').checked = false;
+          document.getElementById('toggle-udp').checked = false;
+        }
+        document.getElementById('tcp-header').style.display = 'none';
+        document.getElementById('udp-header').style.display = 'none';
+        renderAll();
+      });
+
+      document.getElementById('toggle-tcp').addEventListener('change', e => {
+        document.getElementById('tcp-header').style.display = e.target.checked ? 'block' : 'none';
+        if (e.target.checked) {
+          document.getElementById('toggle-udp').checked = false;
+          document.getElementById('udp-header').style.display = 'none';
+          state.ip.protocol = 6;
+        }
+        renderAll();
+      });
+
+      document.getElementById('toggle-udp').addEventListener('change', e => {
+        document.getElementById('udp-header').style.display = e.target.checked ? 'block' : 'none';
+        if (e.target.checked) {
+          document.getElementById('toggle-tcp').checked = false;
+          document.getElementById('tcp-header').style.display = 'none';
+          state.ip.protocol = 17;
+        }
+        renderAll();
+      });
+
+      // Editable fields
+      document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+        el.addEventListener('blur', () => {
+          renderAll();
+        });
+        el.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+        });
+      });
+
+      // Presets
+      document.getElementById('preset-syn').addEventListener('click', () => {
+        state.tcp.flags = { fin: 0, syn: 1, rst: 0, psh: 0, ack: 0, urg: 0, ece: 0, cwr: 0 };
+        state.tcp.dstPort = 80;
+        state.tcp.seqNum = 0x10000000;
+        state.tcp.ackNum = 0;
+        state.payload = new Uint8Array();
+        document.getElementById('payload-hex').value = '';
+        document.getElementById('payload-text').value = '';
+        renderAll();
+      });
+
+      document.getElementById('preset-http').addEventListener('click', () => {
+        state.tcp.flags = { fin: 0, syn: 0, rst: 0, psh: 1, ack: 1, urg: 0, ece: 0, cwr: 0 };
+        state.tcp.dstPort = 80;
+        state.tcp.seqNum = 0x10000001;
+        state.tcp.ackNum = 0x20000001;
+        const http = 'GET / HTTP/1.1\r\nHost: example.com\r\nUser-Agent: PacketViz/1.0\r\nAccept: */*\r\n\r\n';
+        state.payload = new TextEncoder().encode(http);
+        document.getElementById('payload-hex').value = bytesToHex(state.payload);
+        document.getElementById('payload-text').value = http;
+        renderAll();
+      });
+
+      document.getElementById('preset-dns').addEventListener('click', () => {
+        state.tcp.flags = { fin: 0, syn: 0, rst: 0, psh: 0, ack: 0, urg: 0, ece: 0, cwr: 0 };
+        document.getElementById('toggle-tcp').checked = false;
+        document.getElementById('toggle-udp').checked = true;
+        document.getElementById('tcp-header').style.display = 'none';
+        document.getElementById('udp-header').style.display = 'block';
+        state.ip.protocol = 17;
+        state.udp.dstPort = 53;
+        state.udp.srcPort = 54321;
+        // DNS query for example.com
+        const dns = new Uint8Array([0x12, 0x34, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x65, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01]);
+        state.payload = dns;
+        document.getElementById('payload-hex').value = bytesToHex(state.payload);
+        document.getElementById('payload-text').value = 'DNS Query: example.com (A record)';
+        renderAll();
+      });
+
+      document.getElementById('preset-random').addEventListener('click', () => {
+        state.eth.src = Array.from({length: 6}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':');
+        state.eth.dst = Array.from({length: 6}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':');
+        state.ip.src = Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.');
+        state.ip.dst = Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.');
+        state.tcp.srcPort = Math.floor(Math.random() * 65535);
+        state.tcp.dstPort = Math.floor(Math.random() * 65535);
+        state.tcp.seqNum = Math.floor(Math.random() * 0xFFFFFFFF);
+        state.payload = new Uint8Array(Array.from({length: Math.floor(Math.random() * 32)}, () => Math.floor(Math.random() * 256)));
+        document.getElementById('payload-hex').value = bytesToHex(state.payload);
+        document.getElementById('payload-text').value = new TextDecoder().decode(state.payload).replace(/[^\x20-\x7E]/g, '.');
+        renderAll();
+      });
+
+      // Payload conversion
+      document.getElementById('payload-to-text').addEventListener('click', () => {
+        const hex = document.getElementById('payload-hex').value;
+        try {
+          const bytes = hexToBytes(hex);
+          state.payload = new Uint8Array(bytes);
+          document.getElementById('payload-text').value = new TextDecoder().decode(state.payload).replace(/[^\x20-\x7E\n\r\t]/g, '.');
+          renderAll();
+        } catch (e) {
+          alert('Invalid hex');
+        }
+      });
+
+      document.getElementById('payload-to-hex').addEventListener('click', () => {
+        const text = document.getElementById('payload-text').value;
+        state.payload = new TextEncoder().encode(text);
+        document.getElementById('payload-hex').value = bytesToHex(state.payload);
+        renderAll();
+      });
+
+      document.getElementById('payload-clear').addEventListener('click', () => {
+        state.payload = new Uint8Array();
+        document.getElementById('payload-hex').value = '';
+        document.getElementById('payload-text').value = '';
+        renderAll();
+      });
+
+      // Copy buttons
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          // Visual feedback could be added
+        });
+      }
+
+      document.querySelectorAll('[data-action^="copy"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const { eth, ip, l4, full } = buildFullPacket();
+          if (action === 'copy-eth') copyToClipboard(bytesToHex(eth));
+          else if (action === 'copy-ip') copyToClipboard(bytesToHex(ip));
+          else if (action === 'copy-tcp' || action === 'copy-udp') copyToClipboard(bytesToHex(l4));
+          else if (action === 'copy-full') copyToClipboard(bytesToHex(full));
+        });
+      });
+
+      // Raw bytes
+      document.querySelectorAll('[data-action^="raw"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const { eth, ip, l4, full } = buildFullPacket();
+          let data;
+          if (action === 'raw-eth') data = eth;
+          else if (action === 'raw-ip') data = ip;
+          else if (action === 'raw-tcp' || action === 'raw-udp') data = l4;
+          alert('Bytes: ' + Array.from(data).join(', '));
+        });
+      });
+
+      // Verify checksums
+      document.querySelectorAll('[data-action^="verify"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const { ip, l4, isTCP, isUDP } = buildFullPacket();
+          if (action === 'verify-ip') {
+            const cs = checksum(ip);
+            alert(cs === 0 ? '✓ IPv4 Checksum VALID' : '✗ IPv4 Checksum INVALID: ' + cs.toString(16));
+          } else if (action === 'verify-tcp' && isTCP) {
+            const pseudo = pseudoHeader(state.ip.src, state.ip.dst, 6, l4.length + state.payload.length);
+            const forChecksum = new Uint8Array(pseudo.length + l4.length + state.payload.length);
+            forChecksum.set(pseudo, 0);
+            forChecksum.set(l4, pseudo.length);
+            if (state.payload.length > 0) forChecksum.set(state.payload, pseudo.length + l4.length);
+            const cs = checksum(forChecksum);
+            alert(cs === 0 ? '✓ TCP Checksum VALID' : '✗ TCP Checksum INVALID: ' + cs.toString(16));
+          } else if (action === 'verify-udp' && isUDP) {
+            const udpLen = 8 + state.payload.length;
+            const pseudo = pseudoHeader(state.ip.src, state.ip.dst, 17, udpLen);
+            const forChecksum = new Uint8Array(pseudo.length + l4.length + state.payload.length);
+            forChecksum.set(pseudo, 0);
+            forChecksum.set(l4, pseudo.length);
+            if (state.payload.length > 0) forChecksum.set(state.payload, pseudo.length + l4.length);
+            const cs = checksum(forChecksum);
+            alert(cs === 0 ? '✓ UDP Checksum VALID' : '✗ UDP Checksum INVALID: ' + cs.toString(16));
+          }
+        });
+      });
+
+      // Download PCAP
+      document.getElementById('download-pcap').addEventListener('click', () => {
+        const { full } = buildFullPacket();
+        // PCAP global header (little-endian)
+        const pcapHeader = new Uint8Array(24);
+        const dv = new DataView(pcapHeader.buffer);
+        dv.setUint32(0, 0xa1b2c3d4, true); // magic number
+        dv.setUint16(4, 2, true); // version major
+        dv.setUint16(6, 4, true); // version minor
+        dv.setInt32(8, 0, true); // thiszone
+        dv.setUint32(12, 0, true); // sigfigs
+        dv.setUint32(16, 65535, true); // snaplen
+        dv.setUint32(20, 1, true); // network (DLT_EN10MB)
+
+        // Packet header
+        const now = Date.now();
+        const pktHeader = new Uint8Array(16);
+        const dv2 = new DataView(pktHeader.buffer);
+        dv2.setUint32(0, Math.floor(now / 1000), true); // ts_sec
+        dv2.setUint32(4, (now % 1000) * 1000, true); // ts_usec
+        dv2.setUint32(8, full.length, true); // incl_len
+        dv2.setUint32(12, full.length, true); // orig_len
+
+        const blob = new Blob([pcapHeader, pktHeader, full], { type: 'application/vnd.tcpdump.pcap' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'packet.pcap';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Initial render
+      renderAll();
+    })();
+  </script>
+</BaseLayout>
