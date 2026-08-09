@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Pelican">
+    <link rel="canonical" href="https://HitroBro.github.io/">
+
+    <!-- SEO -->
+    <title>HitroBro - How epoll Enables 10k Connections in C</title>
+    <meta name="description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta name="author" content="Hitarth Ghia">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://HitroBro.github.io/networking/how-epoll-enables-10k-connections-in-c/">
+    <meta property="og:title" content="HitroBro">
+    <meta property="og:description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta property="og:image" content="https://HitroBro.github.io/images/og-default.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@HitroBro">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Hitarth Ghia",
+      "url": "https://HitroBro.github.io",
+      "sameAs": [
+        "https://github.com/HitroBro",
+        "https://linkedin.com/in/hitarth-ghia"
+      ],
+      "jobTitle": "Cyber Security Student (CoE Track)",
+      "worksFor": { "@type": "Organization", "name": "Parul University" },
+      "knowsAbout": ["Network Engineering", "Security Automation", "C Programming", "Python", "Linux"]
+    }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://HitroBro.github.io/favicon.svg">
+    <link rel="manifest" href="https://HitroBro.github.io/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://HitroBro.github.io/theme/css/main.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header" role="banner">
+        <div class="container header-inner">
+            <a href="https://HitroBro.github.io/" class="logo" aria-label="HitroBro - Home">
+                <span class="logo-mark">H</span>
+                <span>HitroBro</span>
+            </a>
+
+            <button class="mobile-menu-btn" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+
+            <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a href="https://HitroBro.github.io/" class="nav-link ">Home</a></li>
+                    <li><a href="https://HitroBro.github.io/projects/" class="nav-link ">Projects</a></li>
+                    <li><a href="https://HitroBro.github.io/blog/" class="nav-link ">Blog</a></li>
+                    <li><a href="https://HitroBro.github.io/demos/" class="nav-link ">Demos</a></li>
+                    <li><a href="https://HitroBro.github.io/archives/" class="nav-link">Archives</a></li>
+                    <li><a href="https://github.com/HitroBro" class="nav-link nav-cta" target="_blank" rel="noopener noreferrer">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main id="main-content" role="main">
+  <article>
+    <header>
+      <h2>
+        <a href="https://HitroBro.github.io/networking/how-epoll-enables-10k-connections-in-c/" rel="bookmark"
+           title="Permalink to How epoll Enables 10k Connections in C">How epoll Enables 10k Connections in C</a></h2>
+      
+    </header>
+    <hr>
+<p>When building high-performance network servers, the choice of I/O multiplexing mechanism fundamentally determines your scalability ceiling. This post explores how <code>epoll</code> enables handling 10,000+ concurrent connections on a single thread — the famous "C10k problem" solution.</p>
+<h2 id="the-c10k-problem">The C10k Problem<a class="headerlink" href="#the-c10k-problem" title="Permanent link">&para;</a></h2>
+<p>In the early 2000s, servers struggled to handle 10,000 simultaneous connections. Traditional approaches — <code>select()</code> and <code>poll()</code> — scaled poorly:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// select() limitations</span>
+<span class="n">fd_set</span><span class="w"> </span><span class="n">readfds</span><span class="p">;</span>
+<span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_fd</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_active</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="n">FD_SET</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">select</span><span class="p">(</span><span class="n">max_fd</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="c1">// O(n) scan every call, fd_set size limit (typically 1024)</span>
+</code></pre></div>
+
+<p><strong>Key limitations:</strong>
+- <strong>O(n) complexity</strong> — must scan all file descriptors every call
+- <strong>FD_SETSIZE limit</strong> — typically 1024 file descriptors
+- <strong>Kernel/user-space copies</strong> — entire fd_set copied each syscall
+- <strong>No edge-triggered mode</strong> — level-triggered only</p>
+<h2 id="enter-epoll">Enter epoll<a class="headerlink" href="#enter-epoll" title="Permanent link">&para;</a></h2>
+<p>Linux introduced <code>epoll</code> in kernel 2.5.44 (2002) specifically to solve this:</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">epfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_create1</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="c1">// Add file descriptor</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLET</span><span class="p">,</span><span class="w">  </span><span class="c1">// Edge-triggered</span>
+<span class="w">    </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sockfd</span>
+<span class="p">};</span>
+<span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">sockfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+
+<span class="c1">// Wait for events</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">MAX_EVENTS</span><span class="p">];</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_wait</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_EVENTS</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
+<span class="c1">// Only active fds returned — O(1) per ready fd</span>
+</code></pre></div>
+
+<h3 id="key-innovations">Key Innovations<a class="headerlink" href="#key-innovations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>select/poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Complexity</strong></td>
+<td>O(n) per call</td>
+<td>O(1) per ready fd</td>
+</tr>
+<tr>
+<td><strong>Max FDs</strong></td>
+<td>1024 (FD_SETSIZE)</td>
+<td>Unlimited (RLIMIT_NOFILE)</td>
+</tr>
+<tr>
+<td><strong>Trigger modes</strong></td>
+<td>Level only</td>
+<td>Level + Edge-triggered</td>
+</tr>
+<tr>
+<td><strong>Kernel/user copies</strong></td>
+<td>Full fd_set each call</td>
+<td>Only ready events returned</td>
+</tr>
+<tr>
+<td><strong>Data association</strong></td>
+<td>None</td>
+<td><code>epoll_data</code> union (ptr/fd/u32/u64)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="edge-triggered-vs-level-triggered">Edge-Triggered vs Level-Triggered<a class="headerlink" href="#edge-triggered-vs-level-triggered" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1">// Level-triggered (default) — fires while data available</span>
+<span class="n">ev</span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">;</span>
+
+<span class="c1">// Edge-triggered — fires only on state change</span>
+<span class="n">ev</span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLET</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Edge-triggered requirements:</strong>
+- Must use <strong>non-blocking sockets</strong> (<code>O_NONBLOCK</code>)
+- Must <strong>read/write until <code>EAGAIN</code>/<code>EWOULDBLOCK</code></strong>
+- Missed events = stalled connection</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Correct edge-triggered read loop</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">process</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// EOF</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">errno</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EAGAIN</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">errno</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EWOULDBLOCK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// No more data right now</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Error</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="the-epoll-data-union-o1-dispatch">The epoll Data Union — O(1) Dispatch<a class="headerlink" href="#the-epoll-data-union-o1-dispatch" title="Permanent link">&para;</a></h2>
+<p>One of epoll's most powerful features: associating arbitrary data with each FD:</p>
+<div class="highlight"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">epoll_data</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">    </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">      </span><span class="n">fd</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">u32</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">u64</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">epoll_data_t</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w">     </span><span class="n">events</span><span class="p">;</span><span class="w">    </span><span class="c1">// Epoll events</span>
+<span class="w">    </span><span class="n">epoll_data_t</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w">      </span><span class="c1">// User data</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p><strong>Typical pattern — context pointer:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">;</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">CLIENT</span><span class="p">,</span><span class="w"> </span><span class="n">BACKEND</span><span class="p">,</span><span class="w"> </span><span class="n">LISTENER</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">context</span><span class="p">;</span><span class="w">  </span><span class="c1">// Your per-connection state</span>
+<span class="p">}</span><span class="w"> </span><span class="n">Connection</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">register_fd</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLET</span><span class="p">,</span>
+<span class="w">        </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="w">  </span><span class="c1">// Associate context directly</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// In event loop — O(1) dispatch</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">MAX_EVENTS</span><span class="p">];</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_wait</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_EVENTS</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Connection</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Direct access — no hash table lookup!</span>
+<span class="w">    </span><span class="n">handle_event</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This <strong>O(1) dispatch</strong> eliminates the hash table lookup required by <code>select</code>/<code>poll</code> implementations.</p>
+<h2 id="async-connect-with-epollout">Async Connect with EPOLLOUT<a class="headerlink" href="#async-connect-with-epollout" title="Permanent link">&para;</a></h2>
+<p>One of epoll's superpowers: non-blocking connect with async handshake:</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">sockfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span><span class="w"> </span><span class="n">SOCK_STREAM</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SOCK_NONBLOCK</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">errno</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EINPROGRESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Connection in progress — register for EPOLLOUT</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLOUT</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLET</span><span class="p">,</span>
+<span class="w">        </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">sockfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// In event loop</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">EPOLLOUT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">socklen_t</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+<span class="w">    </span><span class="n">getsockopt</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">SOL_SOCKET</span><span class="p">,</span><span class="w"> </span><span class="n">SO_ERROR</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">len</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Connected! Switch to EPOLLIN</span>
+<span class="w">        </span><span class="n">mod_epoll</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLET</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Connection failed</span>
+<span class="w">        </span><span class="n">handle_connect_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This enables <strong>zero-latency backend connections</strong> in proxies — the gateway never blocks on <code>connect()</code>.</p>
+<h2 id="timerfd-for-timeouts">Timerfd for Timeouts<a class="headerlink" href="#timerfd-for-timeouts" title="Permanent link">&para;</a></h2>
+<p>epoll isn't just for sockets. <code>timerfd</code> integrates timers into the event loop:</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">tfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timerfd_create</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC</span><span class="p">,</span><span class="w"> </span><span class="n">TFD_NONBLOCK</span><span class="p">);</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">itimerspec</span><span class="w"> </span><span class="n">its</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="n">it_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">// 30s interval</span>
+<span class="w">    </span><span class="p">.</span><span class="n">it_value</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">tv_nsec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
+<span class="n">timerfd_settime</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">its</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="c1">// Register with epoll</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">,</span>
+<span class="w">    </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeout_ctx</span>
+<span class="p">};</span>
+<span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+
+<span class="c1">// In event loop</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">timeout_ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">expirations</span><span class="p">;</span>
+<span class="w">    </span><span class="n">read</span><span class="p">(</span><span class="n">tfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">expirations</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">expirations</span><span class="p">));</span>
+<span class="w">    </span><span class="n">check_idle_connections</span><span class="p">();</span><span class="w">  </span><span class="c1">// Check all connections for timeout</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Why CLOCK_MONOTONIC?</strong> Immune to NTP adjustments — timeouts stay accurate even if system clock jumps.</p>
+<h2 id="signalfd-for-signal-handling">Signalfd for Signal Handling<a class="headerlink" href="#signalfd-for-signal-handling" title="Permanent link">&para;</a></h2>
+<p>No more signal handlers interrupting your event loop:</p>
+<div class="highlight"><pre><span></span><code><span class="kt">sigset_t</span><span class="w"> </span><span class="n">mask</span><span class="p">;</span>
+<span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mask</span><span class="p">);</span>
+<span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">SIGINT</span><span class="p">);</span>
+<span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">SIGTERM</span><span class="p">);</span>
+<span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">SIGUSR1</span><span class="p">);</span>
+<span class="n">sigprocmask</span><span class="p">(</span><span class="n">SIG_BLOCK</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">sfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">signalfd</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">SFD_NONBLOCK</span><span class="p">);</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">ev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">.</span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">,</span>
+<span class="w">    </span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">signal_ctx</span>
+<span class="p">};</span>
+<span class="n">epoll_ctl</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">EPOLL_CTL_ADD</span><span class="p">,</span><span class="w"> </span><span class="n">sfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ev</span><span class="p">);</span>
+
+<span class="c1">// In event loop</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">signal_ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">signalfd_siginfo</span><span class="w"> </span><span class="n">si</span><span class="p">;</span>
+<span class="w">    </span><span class="n">read</span><span class="p">(</span><span class="n">sfd</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">si</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">si</span><span class="p">));</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">si</span><span class="p">.</span><span class="n">ssi_signo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">SIGINT</span><span class="p">:</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">SIGTERM</span><span class="p">:</span>
+<span class="w">            </span><span class="n">shutdown_gracefully</span><span class="p">();</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">SIGUSR1</span><span class="p">:</span>
+<span class="w">            </span><span class="n">dump_metrics</span><span class="p">();</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Benefits:</strong> No async-signal-unsafe functions, signals become regular events.</p>
+<h2 id="putting-it-all-together-the-event-loop">Putting It All Together: The Event Loop<a class="headerlink" href="#putting-it-all-together-the-event-loop" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="cp">#define MAX_EVENTS 256</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">epfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_create1</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="c1">// Register listener, timerfd, signalfd...</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">epoll_event</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">MAX_EVENTS</span><span class="p">];</span>
+
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">running</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">epoll_wait</span><span class="p">(</span><span class="n">epfd</span><span class="p">,</span><span class="w"> </span><span class="n">events</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_EVENTS</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">errno</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">EINTR</span><span class="p">)</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;epoll_wait&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">events</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">data</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ctx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">listener_ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">accept_connections</span><span class="p">(</span><span class="n">epfd</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ctx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">timer_ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">handle_timeouts</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ctx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">signal_ctx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">handle_signals</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Connection</span><span class="w"> </span><span class="o">*</span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">EPOLLERR</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">EPOLLHUP</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">handle_error</span><span class="p">(</span><span class="n">conn</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">EPOLLIN</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">handle_read</span><span class="p">(</span><span class="n">conn</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">events</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">EPOLLOUT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">handle_write</span><span class="p">(</span><span class="n">conn</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Max concurrent connections</strong></td>
+<td>10k+</td>
+<td>Limited by RLIMIT_NOFILE, memory</td>
+</tr>
+<tr>
+<td><strong>CPU per connection</strong></td>
+<td>~1-2 μs/event</td>
+<td>Minimal syscall overhead</td>
+</tr>
+<tr>
+<td><strong>Memory per connection</strong></td>
+<td>~2-4 KB</td>
+<td>Ring buffers + context</td>
+</tr>
+<tr>
+<td><strong>Syscalls per event</strong></td>
+<td>1 (epoll_wait)</td>
+<td>Batch processing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pitfall</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Blocking in event loop</strong></td>
+<td>All I/O must be non-blocking</td>
+</tr>
+<tr>
+<td><strong>Forgetting EAGAIN handling</strong></td>
+<td>Loop until EAGAIN in edge-triggered mode</td>
+</tr>
+<tr>
+<td><strong>Missing EPOLLRDHUP</strong></td>
+<td>Add to detect clean peer shutdown</td>
+</tr>
+<tr>
+<td><strong>Starvation in edge-triggered</strong></td>
+<td>Process all available data per event</td>
+</tr>
+<tr>
+<td><strong>FD leaks</strong></td>
+<td>Always close on error/close paths</td>
+</tr>
+</tbody>
+</table>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>epoll transforms the C10k problem from "impossible" to "routine." By combining:</p>
+<ol>
+<li><strong>O(1) readiness notification</strong></li>
+<li><strong>Edge-triggered efficiency</strong></li>
+<li><strong>Rich data association (epoll_data)</strong></li>
+<li><strong>Timer/signal integration (timerfd/signalfd)</strong></li>
+</ol>
+<p>You can build servers handling 10k-100k+ connections on a single thread — the foundation of modern high-performance infrastructure like nginx, HAProxy, and our own <code>async-tcp-gateway</code>.</p>
+<hr>
+<p><em>Want to see this in action? Check out <a href="https://github.com/HitroBro/async-tcp-gateway">async-tcp-gateway</a> — a production-ready C11 implementation with health checks, rate limiting, and metrics.</em></p>
+    <footer>
+      <p>Published: <time datetime="2025-08-10T00:00:00+05:30">
+        Aug 10, 2025
+      </time></p>
+        <address>
+          By             <a href="https://HitroBro.github.io/author/hitarth-ghia/">Hitarth Ghia</a>
+        </address>
+        <p>
+          Category: <a href="https://HitroBro.github.io/networking/">Networking</a>
+        </p>
+        <p>
+          Tags:
+            <a href="https://HitroBro.github.io/tag/epoll/">epoll</a>
+            <a href="https://HitroBro.github.io/tag/c/">C</a>
+            <a href="https://HitroBro.github.io/tag/networking/">networking</a>
+            <a href="https://HitroBro.github.io/tag/systems-programming/">systems-programming</a>
+            <a href="https://HitroBro.github.io/tag/linux/">Linux</a>
+        </p>
+    </footer>
+  </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="https://HitroBro.github.io/" class="footer-logo logo" aria-label="HitroBro - Home">
+                        <span class="logo-mark">H</span>
+                        <span>HitroBro</span>
+                    </a>
+                    <p class="footer-tagline">
+                        Cyber Security Student (CoE) • Network Engineering • Security Automation • C Systems Programming
+                    </p>
+                    <div class="social-links">
+                        <a href="https://github.com/HitroBro" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                        <a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="mailto:ghiahitarth@gmail.com" aria-label="Email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </a>
+                        <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <nav>
+                    <h4 class="footer-title">Projects</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/projects/async-tcp-gateway/">Async TCP Gateway</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/neosahre/">NeoShare</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/terminal-portfolio/">Terminal Portfolio</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/blog/">Technical Blog</a></li>
+                        <li><a href="https://HitroBro.github.io/demos/">Interactive Demos</a></li>
+                        <li><a href="https://HitroBro.github.io/archives/">Archives</a></li>
+                        <li><a href="https://HitroBro.github.io/feeds/all.atom.xml">RSS Feed</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:ghiahitarth@gmail.com">Email Me</a></li>
+                        <li><a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener">LinkedIn</a></li>
+                        <li><a href="https://github.com/HitroBro" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="https://github.com/HitroBro/async-tcp-gateway" target="_blank" rel="noopener">Gateway Source</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Hitarth Ghia. Built with Pelican. Open source.</p>
+                <div class="social-links">
+                    <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile nav toggle
+        (function() {
+            const btn = document.querySelector('.mobile-menu-btn');
+            const nav = document.querySelector('.nav-list');
+            if (!btn || !nav) return;
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+            nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                nav.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }));
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && nav.classList.contains('open')) {
+                    nav.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.focus();
+                }
+            });
+        })();
+
+        // Active nav highlight
+        (function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === '/' && currentPath === '/') link.classList.add('active');
+                else if (href !== '/' && currentPath.startsWith(href)) link.classList.add('active');
+            });
+        })();
+    </script>
+
+</body>
+</html>

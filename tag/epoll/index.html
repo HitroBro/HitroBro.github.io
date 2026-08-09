@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Pelican">
+    <link rel="canonical" href="https://HitroBro.github.io/">
+
+    <!-- SEO -->
+    <title>HitroBro - epoll tag</title>
+    <meta name="description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta name="author" content="Hitarth Ghia">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://HitroBro.github.io/">
+    <meta property="og:title" content="HitroBro">
+    <meta property="og:description" content="Cyber Security Student (CoE) | Network Engineering & Security Automation">
+    <meta property="og:image" content="https://HitroBro.github.io/images/og-default.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@HitroBro">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Hitarth Ghia",
+      "url": "https://HitroBro.github.io",
+      "sameAs": [
+        "https://github.com/HitroBro",
+        "https://linkedin.com/in/hitarth-ghia"
+      ],
+      "jobTitle": "Cyber Security Student (CoE Track)",
+      "worksFor": { "@type": "Organization", "name": "Parul University" },
+      "knowsAbout": ["Network Engineering", "Security Automation", "C Programming", "Python", "Linux"]
+    }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://HitroBro.github.io/favicon.svg">
+    <link rel="manifest" href="https://HitroBro.github.io/site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://HitroBro.github.io/theme/css/main.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header" role="banner">
+        <div class="container header-inner">
+            <a href="https://HitroBro.github.io/" class="logo" aria-label="HitroBro - Home">
+                <span class="logo-mark">H</span>
+                <span>HitroBro</span>
+            </a>
+
+            <button class="mobile-menu-btn" aria-expanded="false" aria-controls="main-nav" aria-label="Toggle navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+
+            <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a href="https://HitroBro.github.io/" class="nav-link ">Home</a></li>
+                    <li><a href="https://HitroBro.github.io/projects/" class="nav-link ">Projects</a></li>
+                    <li><a href="https://HitroBro.github.io/blog/" class="nav-link ">Blog</a></li>
+                    <li><a href="https://HitroBro.github.io/demos/" class="nav-link ">Demos</a></li>
+                    <li><a href="https://HitroBro.github.io/archives/" class="nav-link">Archives</a></li>
+                    <li><a href="https://github.com/HitroBro" class="nav-link nav-cta" target="_blank" rel="noopener noreferrer">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main id="main-content" role="main">
+<!-- Hero Section -->
+<section class="section hero">
+    <div class="container">
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--accent-primary-dim); border: 1px solid var(--accent-primary); border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 500; color: var(--accent-primary); margin-bottom: 1.5rem;">
+                <span class="pulse-dot"></span>
+                <span>Open to Internships & Research Opportunities</span>
+            </div>
+
+            <h1 class="hero-title">
+                Building Secure,<br>
+                <span class="text-accent">High-Performance</span><br>
+                Network Systems
+            </h1>
+
+            <p class="hero-subtitle">
+                Cyber Security Student (CoE Track) specializing in <strong>Network Infrastructure</strong> and <strong>Security Automation</strong>.
+                I write C systems code (epoll, timerfd, signalfd) for high-concurrency gateways, Python tooling for network automation,
+                and interactive demos for protocol visualization.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="https://HitroBro.github.io/projects/" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    View Projects
+                </a>
+                <a href="https://HitroBro.github.io/blog/" class="btn btn-secondary">Technical Blog</a>
+                <a href="https://HitroBro.github.io/demos/" class="btn btn-ghost">Interactive Demos</a>
+            </div>
+
+            <div class="hero-tech">
+                <span class="tag tag-primary">C11</span>
+                <span class="tag tag-primary">epoll</span>
+                <span class="tag tag-primary">timerfd</span>
+                <span class="tag tag-primary">signalfd</span>
+                <span class="tag">Python</span>
+                <span class="tag">Linux</span>
+                <span class="tag">TCP/IP</span>
+                <span class="tag">Wireshark</span>
+                <span class="tag">CCNA</span>
+                <span class="tag">eBPF</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Bar -->
+<section class="stats-bar">
+    <div class="container">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-value" id="stat-repos">8</div>
+                <div class="stat-label">Repositories</div>
+            </div>
+            <div>
+                <div class="stat-value" id="stat-languages">6</div>
+                <div class="stat-label">Languages</div>
+            </div>
+            <div>
+                <div class="stat-value" id="stat-projects">4</div>
+                <div class="stat-label">Major Projects</div>
+            </div>
+            <div>
+                <div class="stat-value" id="stat-focus">1</div>
+                <div class="stat-label">Focus: NetSec</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Projects -->
+<section class="section">
+    <div class="container">
+        <header class="section-header">
+            <h2 class="section-title">Featured Projects</h2>
+            <p class="section-subtitle">Production-grade systems demonstrating network engineering depth and security automation breadth</p>
+        </header>
+
+        <div class="grid grid-3 projects-grid">
+            <article class="card project-card">
+                <div class="card-header">
+                    <div class="project-header">
+                        <div>
+                            <span class="tag tag-primary mb-2">C11</span>
+                            <h3 class="card-title">Async TCP Layer 4 Gateway</h3>
+                        </div>
+                        <div class="project-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body project-body">
+                    <p class="card-description">High-concurrency epoll-based TCP proxy with round-robin LB, instant failover, async health checks, IPv6 dual-stack, rate limiting, SIGUSR1 metrics</p>
+                </div>
+                <div class="card-footer project-footer">
+                    <div class="tag-list">
+                        <span class="tag">C11</span>
+                        <span class="tag">epoll</span>
+                        <span class="tag">timerfd</span>
+                        <span class="tag">signalfd</span>
+                        <span class="tag">Python Tests</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="/projects/async-tcp-gateway/" class="btn btn-primary btn-sm">Case Study</a>
+                        <a href="https://github.com/HitroBro/async-tcp-gateway" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Source</a>
+                    </div>
+                </div>
+            </article>
+            <article class="card project-card">
+                <div class="card-header">
+                    <div class="project-header">
+                        <div>
+                            <span class="tag tag-primary mb-2">Python 3</span>
+                            <h3 class="card-title">NeoShare Local Cloud</h3>
+                        </div>
+                        <div class="project-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body project-body">
+                    <p class="card-description">Zero-dependency HTTP file server with ThreadingHTTPServer, path traversal protection, 2GB upload limit, Range streaming, auto tar.gz, dark mode</p>
+                </div>
+                <div class="card-footer project-footer">
+                    <div class="tag-list">
+                        <span class="tag">Python 3</span>
+                        <span class="tag">ThreadingHTTPServer</span>
+                        <span class="tag">Zero Deps</span>
+                        <span class="tag">Range Requests</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="/projects/neosahre/" class="btn btn-primary btn-sm">Case Study</a>
+                        <a href="https://github.com/HitroBro/NeoShare-Local-Cloud" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Source</a>
+                    </div>
+                </div>
+            </article>
+            <article class="card project-card">
+                <div class="card-header">
+                    <div class="project-header">
+                        <div>
+                            <span class="tag tag-primary mb-2">PyScript</span>
+                            <h3 class="card-title">Terminal Portfolio (v1)</h3>
+                        </div>
+                        <div class="project-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="4 17 10 11 4 5"></polyline>
+                                <line x1="12" y1="19" x2="20" y2="19"></line>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body project-body">
+                    <p class="card-description">PyScript/WASM terminal running Python in browser — interactive virtual filesystem, command parser, cyberpunk theme</p>
+                </div>
+                <div class="card-footer project-footer">
+                    <div class="tag-list">
+                        <span class="tag">PyScript</span>
+                        <span class="tag">WebAssembly</span>
+                        <span class="tag">Python</span>
+                        <span class="tag">WASM</span>
+                    </div>
+                    <div class="project-links">
+                        <a href="/projects/terminal-portfolio/" class="btn btn-primary btn-sm">Case Study</a>
+                        <a href="https://github.com/HitroBro/HitroBro.github.io" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Source</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div style="text-align: center; margin-top: 2.5rem;">
+            <a href="https://HitroBro.github.io/projects/" class="btn btn-secondary">View All Projects →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Demos Preview -->
+<section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <header class="section-header">
+            <h2 class="section-title">Interactive Network Demos</h2>
+            <p class="section-subtitle">Browser-based tools for learning and debugging network protocols — no installation required</p>
+        </header>
+
+        <div class="grid grid-3 demos-grid">
+            <a href="/demos/subnet-calculator/" class="card demo-card" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                <div class="card-body" style="padding: 2.5rem; display: flex; flex-direction: column; height: 100%;">
+                    <div class="demo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.75rem;">Subnet Calculator</h3>
+                    <p style="color: var(--fg-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1;">IPv4/IPv6 CIDR calculator with binary visualization, classful reference, wildcard masks</p>
+                    <div class="tag-list">
+                        <span class="tag tag-primary">IPv4/IPv6</span>
+                        <span class="tag tag-primary">CIDR</span>
+                        <span class="tag tag-primary">Binary View</span>
+                    </div>
+                    <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-primary); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--fg-muted);">
+                        <span>Try it →</span>
+                    </div>
+                </div>
+            </a>
+            <a href="/demos/packet-header-viz/" class="card demo-card" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                <div class="card-body" style="padding: 2.5rem; display: flex; flex-direction: column; height: 100%;">
+                    <div class="demo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.75rem;">Packet Header Visualizer</h3>
+                    <p style="color: var(--fg-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1;">Interactive Ethernet/IPv4/TCP/UDP header breakdown with live checksum calculation and PCAP export</p>
+                    <div class="tag-list">
+                        <span class="tag tag-primary">Ethernet</span>
+                        <span class="tag tag-primary">IPv4</span>
+                        <span class="tag tag-primary">TCP/UDP</span>
+                        <span class="tag tag-primary">PCAP</span>
+                    </div>
+                    <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-primary); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--fg-muted);">
+                        <span>Try it →</span>
+                    </div>
+                </div>
+            </a>
+            <a href="/demos/tcp-state-machine/" class="card demo-card" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                <div class="card-body" style="padding: 2.5rem; display: flex; flex-direction: column; height: 100%;">
+                    <div class="demo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="17 1 21 5 17 9"></polyline>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                            <polyline points="7 23 3 19 7 15"></polyline>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        </svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.75rem;">TCP State Machine</h3>
+                    <p style="color: var(--fg-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex-grow: 1;">RFC 793 state diagram with animated transitions, event log, educational packet flows</p>
+                    <div class="tag-list">
+                        <span class="tag tag-primary">RFC 793</span>
+                        <span class="tag tag-primary">Animation</span>
+                        <span class="tag tag-primary">Educational</span>
+                    </div>
+                    <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-primary); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--fg-muted);">
+                        <span>Try it →</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 2.5rem;">
+            <a href="https://HitroBro.github.io/demos/" class="btn btn-primary">Explore All Demos →</a>
+        </div>
+    </div>
+</section>
+
+<!-- About / Contact -->
+<section class="section" id="contact">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; max-width: var(--container-max);">
+            <div>
+                <header class="section-header" style="text-align: left; margin-bottom: 2rem;">
+                    <h2 class="section-title" style="justify-content: flex-start;">Let's Connect</h2>
+                    <p class="section-subtitle" style="text-align: left; margin: 0;">Open to internships, research collaborations, and networking with fellow security engineers</p>
+                </header>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <a href="mailto:ghiahitarth@gmail.com" class="btn btn-primary" style="justify-content: flex-start; width: fit-content;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Email Me
+                    </a>
+                    <a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener" class="btn btn-secondary" style="justify-content: flex-start; width: fit-content;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        LinkedIn
+                    </a>
+                    <a href="https://github.com/HitroBro" target="_blank" rel="noopener" class="btn btn-ghost" style="justify-content: flex-start; width: fit-content;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                </div>
+
+                <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border-primary);">
+                    <h4 style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-muted); margin-bottom: 1rem;">Currently</h4>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem; color: var(--fg-secondary);">
+                        <li>🔭 Building: Async TCP Gateway with eBPF/XDP integration</li>
+                        <li>🧠 Studying: Linux Kernel Networking, BPF Verifier, io_uring</li>
+                        <li>📜 Pursuing: CCNA, OSCP</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <h3 style="margin-bottom: 1.5rem;">Quick Contact</h3>
+                <form id="contact-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" name="name" required class="form-input" placeholder="Your name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" required class="form-input" placeholder="you@example.com" />
+                    </div>
+                    <div class="form-group">
+                        <label for="subject" class="form-label">Subject</label>
+                        <select id="subject" name="subject" required class="form-input">
+                            <option value="">Select a topic</option>
+                            <option value="internship">Internship Opportunity</option>
+                            <option value="research">Research Collaboration</option>
+                            <option value="networking">Technical Discussion</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" name="message" rows="4" required class="form-input" placeholder="Tell me about your project, role, or question..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                    <p id="form-status" class="form-status"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form handling script -->
+<script>
+    (function() {
+        const form = document.getElementById('contact-form');
+        const status = document.getElementById('form-status');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            const original = btn.textContent;
+            btn.textContent = 'Sending...';
+            btn.disabled = true;
+            status.textContent = '';
+            status.style.color = 'var(--fg-muted)';
+
+            const data = new FormData(form);
+            const params = new URLSearchParams();
+            for (const [key, value] of data) params.append(key, value);
+
+            try {
+                const response = await fetch('https://formspree.io/f/your-form-id', {
+                    method: 'POST',
+                    body: params,
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    status.textContent = '✓ Message sent successfully! I\'ll get back to you soon.';
+                    status.style.color = 'var(--accent-primary)';
+                    form.reset();
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch {
+                status.textContent = '✗ Failed to send. Please email directly: ghiahitarth@gmail.com';
+                status.style.color = 'var(--accent-secondary)';
+            } finally {
+                btn.textContent = original;
+                btn.disabled = false;
+            }
+        });
+
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('focus', () => el.style.borderColor = 'var(--accent-primary)');
+            el.addEventListener('blur', () => el.style.borderColor = 'var(--border-input)');
+        });
+    })();
+</script>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="https://HitroBro.github.io/" class="footer-logo logo" aria-label="HitroBro - Home">
+                        <span class="logo-mark">H</span>
+                        <span>HitroBro</span>
+                    </a>
+                    <p class="footer-tagline">
+                        Cyber Security Student (CoE) • Network Engineering • Security Automation • C Systems Programming
+                    </p>
+                    <div class="social-links">
+                        <a href="https://github.com/HitroBro" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                        <a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="mailto:ghiahitarth@gmail.com" aria-label="Email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </a>
+                        <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <nav>
+                    <h4 class="footer-title">Projects</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/projects/async-tcp-gateway/">Async TCP Gateway</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/neosahre/">NeoShare</a></li>
+                        <li><a href="https://HitroBro.github.io/projects/terminal-portfolio/">Terminal Portfolio</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://HitroBro.github.io/blog/">Technical Blog</a></li>
+                        <li><a href="https://HitroBro.github.io/demos/">Interactive Demos</a></li>
+                        <li><a href="https://HitroBro.github.io/archives/">Archives</a></li>
+                        <li><a href="https://HitroBro.github.io/feeds/all.atom.xml">RSS Feed</a></li>
+                    </ul>
+                </nav>
+
+                <nav>
+                    <h4 class="footer-title">Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:ghiahitarth@gmail.com">Email Me</a></li>
+                        <li><a href="https://linkedin.com/in/hitarth-ghia" target="_blank" rel="noopener">LinkedIn</a></li>
+                        <li><a href="https://github.com/HitroBro" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="https://github.com/HitroBro/async-tcp-gateway" target="_blank" rel="noopener">Gateway Source</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Hitarth Ghia. Built with Pelican. Open source.</p>
+                <div class="social-links">
+                    <a href="https://HitroBro.github.io/feeds/all.atom.xml" target="_blank" rel="noopener" aria-label="RSS Feed">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18c0 2.21 1.79 4 4 4h14c2.21 0 4-1.79 4-4V8c0-2.21-1.79-4-4-4H10c-2.21 0-4 1.79-4 4v10zm-2 0c0-3.31 2.69-6 6-6h12c3.31 0 6 2.69 6 6v12c0 3.31-2.69 6-6 6H10c-3.31 0-6-2.69-6-6V18zm10-6c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile nav toggle
+        (function() {
+            const btn = document.querySelector('.mobile-menu-btn');
+            const nav = document.querySelector('.nav-list');
+            if (!btn || !nav) return;
+            btn.addEventListener('click', () => {
+                const open = nav.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+            nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                nav.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }));
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && nav.classList.contains('open')) {
+                    nav.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.focus();
+                }
+            });
+        })();
+
+        // Active nav highlight
+        (function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === '/' && currentPath === '/') link.classList.add('active');
+                else if (href !== '/' && currentPath.startsWith(href)) link.classList.add('active');
+            });
+        })();
+    </script>
+
+</body>
+</html>

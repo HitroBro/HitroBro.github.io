@@ -1,0 +1,30 @@
+# Pelican build output
+output/
+*.pyc
+__pycache__/
+.Python
+*.so
+*.egg-info
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+env/
+ENV/
+dist/
+*.egg-info/
+*.whl
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
